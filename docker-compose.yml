@@ -9,6 +9,8 @@ services:
       POSTGRES_USER: aleph
       POSTGRES_PASSWORD: aleph
       POSTGRES_DATABASE: aleph
+    networks:
+      - aleph
 
   elasticsearch:
     image: ghcr.io/alephdata/aleph-elasticsearch:3bb5dbed97cfdb9955324d11e5c623a5c5bbc410
@@ -17,12 +19,16 @@ services:
       - discovery.type=single-node
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - aleph
 
   redis:
     image: redis:alpine
     command: [ "redis-server", "--save", "3600", "10" ]
     volumes:
       - redis-data:/data
+    networks:
+      - aleph
 
   convert-document:
     image: ghcr.io/alephdata/convert-document:3.16.1
@@ -30,6 +36,8 @@ services:
     restart: on-failure
     user: app
     tmpfs: /tmp
+    networks:
+      - aleph
 
   ingest-file:
     image: ghcr.io/alephdata/ingest-file:3.16.1
@@ -44,6 +52,8 @@ services:
     restart: on-failure
     env_file:
       - aleph.env
+    networks:
+      - aleph
 
   worker:
     image: alephdata/aleph:${ALEPH_TAG:-3.12.1}
@@ -60,6 +70,8 @@ services:
       - archive-data:/data
     env_file:
       - aleph.env
+    networks:
+      - aleph
 
   shell:
     image: alephdata/aleph:${ALEPH_TAG:-3.12.1}
@@ -78,6 +90,8 @@ services:
       - "~:/host"
     env_file:
       - aleph.env
+    networks:
+      - aleph
 
   api:
     image: alephdata/aleph:${ALEPH_TAG:-3.12.1}
@@ -96,16 +110,27 @@ services:
       - archive-data:/data
     env_file:
       - aleph.env
+    networks:
+      - aleph
 
   ui:
     image: alephdata/aleph-ui-production:${ALEPH_TAG:-3.12.1}
     depends_on:
       - api
-    ports:
-      - "8080:8080"
+    networks:
+      - aleph
+      - nginx-load-balancer
+    #ports:
+    #  - "8080:8080"
 
 volumes:
   archive-data: {}
   postgres-data: {}
   redis-data: {}
   elasticsearch-data: {}
+
+networks:
+  aleph:
+  nginx-load-balancer:
+    external:
+      name: docker_nginx-load-balancer
