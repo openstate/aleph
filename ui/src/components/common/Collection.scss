@@ -1,19 +1,20 @@
-@import "app/variables.scss";
-@import "app/mixins.scss";
+@import 'app/variables.scss';
+@import 'app/mixins.scss';
 
 .CollectionLabel {
-    .bp3-icon, .bp3-spinner {
-        @include rtlSupportInvertedProp(margin, right, $aleph-icon-padding, null);
-    }
+  .#{$bp-ns}-icon,
+  .#{$bp-ns}-spinner {
+    @include rtlSupportInvertedProp(margin, right, $aleph-icon-padding, null);
+  }
 
-    .bp3-spinner {
-      display: inline-block;
-    }
+  .#{$bp-ns}-spinner {
+    display: inline-block;
+  }
 }
 
 .CollectionUpdateStatus {
   &__popover {
-    .bp3-popover2-arrow-fill {
+    .#{$bp-ns}-popover2-arrow-fill {
       fill: $light-gray4 !important;
     }
   }

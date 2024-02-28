@@ -57,6 +57,11 @@ spec:
                 secretKeyRef:
                   name: aleph-secrets
                   key: FTM_STORE_URI
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: aleph-secrets
+                  key: SENTRY_DSN
             {{ if .Values.global.google }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/secrets/google/service-account.json
@@ -85,7 +90,7 @@ spec:
           emptyDir:
             medium: Memory
 ---
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ .Values.global.namingPrefix }}-ingest-file

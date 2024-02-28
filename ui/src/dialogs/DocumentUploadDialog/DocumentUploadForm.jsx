@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, FormattedMessage, injectIntl } from 'react-intl';
+import { Classes } from '@blueprintjs/core';
+import c from 'classnames';
 
 import { showErrorToast } from 'src/app/toast';
 
@@ -8,34 +10,38 @@ import './DocumentUploadForm.scss';
 const messages = defineMessages({
   file_rejected: {
     id: 'document.upload.rejected',
-    defaultMessage: '{fileName} is missing a file type, so it cannot be uploaded.',
+    defaultMessage:
+      '{fileName} is missing a file type, so it cannot be uploaded.',
   },
 });
 
 export class DocumentUploadForm extends PureComponent {
   onFilesChange = (event) => {
-    const { intl } = this.props
-    const rejectedFiles = []
+    const { intl } = this.props;
+    const rejectedFiles = [];
 
-    const files = Array.from(event.target.files)
-      .filter(file => {
-        if (!file.type || file.type === '') {
-          rejectedFiles.push(file)
-          return false;
-        }
-        return true;
-      })
+    const files = Array.from(event.target.files).filter((file) => {
+      if (!file.type || file.type === '') {
+        rejectedFiles.push(file);
+        return false;
+      }
+      return true;
+    });
 
-    rejectedFiles.forEach(f => showErrorToast(intl.formatMessage(messages.file_rejected, { fileName: f.name })))
+    rejectedFiles.forEach((f) =>
+      showErrorToast(
+        intl.formatMessage(messages.file_rejected, { fileName: f.name })
+      )
+    );
     this.props.onFilesChange(files);
-  }
+  };
 
   render() {
     return (
       <div className="DocumentUploadForm">
-        <div className="bp3-input-group bp3-large bp3-fill">
+        <div className={c(Classes.INPUT_GROUP, Classes.LARGE, Classes.FILL)}>
           <label
-            className="bp3-file-input bp3-large bp3-fill"
+            className={c(Classes.FILE_INPUT, Classes.LARGE, Classes.FILL)}
             htmlFor="file-input"
           >
             <input
@@ -44,7 +50,7 @@ export class DocumentUploadForm extends PureComponent {
               multiple
               onChange={this.onFilesChange}
             />
-            <span className="bp3-file-upload-input">
+            <span className={Classes.FILE_UPLOAD_INPUT}>
               <FormattedMessage
                 id="document.upload.files"
                 defaultMessage="Choose files to upload..."

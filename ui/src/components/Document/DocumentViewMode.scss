@@ -1,12 +1,12 @@
-@import "app/variables.scss";
-@import "app/mixins.scss";
+@import 'app/variables.scss';
+@import 'app/mixins.scss';
 
 .DocumentViewMode {
   flex: 23;
 
   .outer {
     flex: 2;
-    padding: ($aleph-grid-size / 2);
+    padding: ($aleph-grid-size * 0.5);
 
     .inner {
       background: white;

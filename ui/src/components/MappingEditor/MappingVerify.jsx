@@ -2,15 +2,15 @@ import React, { Component } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { defineMessages, FormattedMessage, injectIntl } from 'react-intl';
-import { Button, Card, HTMLTable, MenuItem } from '@blueprintjs/core';
+import { Button, Classes, Card, HTMLTable, MenuItem } from '@blueprintjs/core';
 import { Tooltip2 as Tooltip } from '@blueprintjs/popover2';
-import { PropertyEditor } from '@alephdata/react-ftm';
+import { PropertyEditor } from 'react-ftm';
 import { Property } from 'components/common';
+import c from 'classnames';
 
 import { selectLocale } from 'selectors';
 import { MappingLabel } from 'components/MappingEditor/MappingLabel';
 import SelectWrapper from 'components/common/SelectWrapper';
-
 
 import './MappingVerify.scss';
 
@@ -55,8 +55,11 @@ class MappingVerifyItem extends Component {
     const { intl, mapping, onPropertyAdd } = this.props;
     const { id, schema, properties } = mapping;
 
-    const items = schema.getEditableProperties()
-      .filter(prop => !prop.type.isEntity && properties && !properties[prop.name])
+    const items = schema
+      .getEditableProperties()
+      .filter(
+        (prop) => !prop.type.isEntity && properties && !properties[prop.name]
+      )
       .sort((a, b) => (a.label > b.label ? 1 : -1));
 
     return (
@@ -89,7 +92,10 @@ class MappingVerifyItem extends Component {
             minimal
             small
           >
-            <Property.Values prop={schema.getProperty(propertyName)} values={value} />
+            <Property.Values
+              prop={schema.getProperty(propertyName)}
+              values={value}
+            />
           </Button>
         </div>
       );
@@ -100,8 +106,10 @@ class MappingVerifyItem extends Component {
           locale={locale}
           entity={fullMappingsList.getMappingAsEntity(id)}
           property={schema.getProperty(propertyName)}
-          onSubmit={entity => {
-            onPropertyAdd(mapping.id, propertyName, { literal: entity.getProperty(propertyName) });
+          onSubmit={(entity) => {
+            onPropertyAdd(mapping.id, propertyName, {
+              literal: entity.getProperty(propertyName),
+            });
             if (currEditingLiteral === propertyName) {
               this.setState({ currEditingLiteral: null });
             }
@@ -118,17 +126,33 @@ class MappingVerifyItem extends Component {
       return null;
     }
     if (propValue.column !== undefined) {
-      return <td className="MappingVerify__listItem__value bp3-monospace-text">{propValue.column}</td>;
+      return (
+        <td
+          className={c(
+            'MappingVerify__listItem__value',
+            Classes.MONOSPACE_TEXT
+          )}
+        >
+          {propValue.column}
+        </td>
+      );
     }
     if (propValue.literal !== undefined) {
-      return <td className="MappingVerify__listItem__value">{this.renderLiteralEdit(propName, propValue.literal)}</td>;
+      return (
+        <td className="MappingVerify__listItem__value">
+          {this.renderLiteralEdit(propName, propValue.literal)}
+        </td>
+      );
     }
     if (propValue.entity !== undefined) {
       const referredEntity = fullMappingsList.getMapping(propValue.entity);
 
       if (referredEntity) {
         return (
-          <td className="MappingVerify__listItem__value" style={{ fontWeight: 'bold' }}>
+          <td
+            className="MappingVerify__listItem__value"
+            style={{ fontWeight: 'bold' }}
+          >
             <MappingLabel mapping={referredEntity} />
           </td>
         );
@@ -143,42 +167,56 @@ class MappingVerifyItem extends Component {
     const { id, schema, color, keys, properties } = mapping;
 
     return (
-      <Card className="MappingVerify__item" key={id} style={{ borderColor: color }}>
-        <h6 className="MappingVerify__title bp3-heading">
+      <Card
+        className="MappingVerify__item"
+        key={id}
+        style={{ borderColor: color }}
+      >
+        <h6 className={c('MappingVerify__title', Classes.HEADING)}>
           <MappingLabel mapping={mapping} onEdit={onMappingIdChange} />
         </h6>
         <div className="MappingVerify__section">
           <span className="MappingVerify__section__title">
-            <FormattedMessage id="mapping.keys" defaultMessage="Keys" />
-            :
+            <FormattedMessage id="mapping.keys" defaultMessage="Keys" />:
           </span>
-          <p className="MappingVerify__section__value bp3-monospace-text">{keys.join(', ')}</p>
+          <p
+            className={c(
+              'MappingVerify__section__value',
+              Classes.MONOSPACE_TEXT
+            )}
+          >
+            {keys.join(', ')}
+          </p>
         </div>
         <div className="MappingVerify__section">
           <span className="MappingVerify__section__title">
-            <FormattedMessage id="mapping.props" defaultMessage="Properties" />
-            :
+            <FormattedMessage id="mapping.props" defaultMessage="Properties" />:
           </span>
           <HTMLTable className="MappingVerify__list">
             {properties && (
               <tbody>
-                {Array.from(Object.entries(properties)).map(([propName, propValue]) => (
-                  <tr className="MappingVerify__listItem" key={propName}>
-                    <td className="MappingVerify__listItem__label">
-                      {schema.getProperty(propName).label}
-                    </td>
-                    {this.renderPropertyValue(propName, propValue)}
-                    <td className="MappingVerify__listItem__close">
-                      <Tooltip content={intl.formatMessage(messages.remove)}>
-                        <Button minimal icon="cross" onClick={() => onPropertyRemove(id, propName)} />
-                      </Tooltip>
-                    </td>
-                  </tr>
-                ))}
+                {Array.from(Object.entries(properties)).map(
+                  ([propName, propValue]) => (
+                    <tr className="MappingVerify__listItem" key={propName}>
+                      <td className="MappingVerify__listItem__label">
+                        {schema.getProperty(propName).label}
+                      </td>
+                      {this.renderPropertyValue(propName, propValue)}
+                      <td className="MappingVerify__listItem__close">
+                        <Tooltip content={intl.formatMessage(messages.remove)}>
+                          <Button
+                            minimal
+                            icon="cross"
+                            onClick={() => onPropertyRemove(id, propName)}
+                          />
+                        </Tooltip>
+                      </td>
+                    </tr>
+                  )
+                )}
               </tbody>
             )}
           </HTMLTable>
-
         </div>
         {this.renderLiteralSelect()}
       </Card>
@@ -189,20 +227,13 @@ class MappingVerifyItem extends Component {
 const MappingVerify = ({ items, ...props }) => (
   <div className="MappingVerify">
     {items.map((mapping) => (
-      <MappingVerifyItem
-        key={mapping.id}
-        mapping={mapping}
-        {...props}
-      />
+      <MappingVerifyItem key={mapping.id} mapping={mapping} {...props} />
     ))}
   </div>
 );
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   locale: selectLocale(state),
 });
 
-export default compose(
-  connect(mapStateToProps),
-  injectIntl,
-)(MappingVerify);
+export default compose(connect(mapStateToProps), injectIntl)(MappingVerify);

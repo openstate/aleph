@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { Intent, Button } from '@blueprintjs/core';
+import { Classes, Intent, Button } from '@blueprintjs/core';
 import { defineMessages, injectIntl } from 'react-intl';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
+import c from 'classnames';
 
-import withRouter from 'app/withRouter'
+import withRouter from 'app/withRouter';
 import { forceMutate, ingestDocument } from 'actions';
 import { showErrorToast } from 'app/toast';
 import FormDialog from 'dialogs/common/FormDialog';
-
 
 const messages = defineMessages({
   title: {
@@ -46,9 +46,7 @@ export class DocumentFolderDialog extends Component {
   }
 
   async onSubmit() {
-    const {
-      intl, collection, parent, navigate,
-    } = this.props;
+    const { intl, collection, parent, navigate } = this.props;
     const { title } = this.state;
     this.setState({ blocking: true });
     try {
@@ -66,7 +64,7 @@ export class DocumentFolderDialog extends Component {
       this.props.forceMutate();
 
       navigate({
-        pathname: `/documents/${result.id}`,
+        pathname: `/entities/${result.id}`,
       });
     } catch (e) {
       showErrorToast(intl.formatMessage(messages.error));
@@ -88,13 +86,15 @@ export class DocumentFolderDialog extends Component {
         title={intl.formatMessage(messages.title)}
         onClose={toggleDialog}
       >
-        <div className="bp3-dialog-body">
-          <div className="bp3-form-group">
-            <div className="bp3-input-group bp3-large bp3-fill">
+        <div className={Classes.DIALOG_BODY}>
+          <div className={Classes.FORM_GROUP}>
+            <div
+              className={c(Classes.INPUT_GROUP, Classes.LARGE, Classes.FILL)}
+            >
               <input
                 id="label"
                 type="text"
-                className="bp3-input"
+                className={Classes.INPUT}
                 autoComplete="off"
                 placeholder={intl.formatMessage(messages.untitled)}
                 onChange={this.onChangeTitle}
@@ -103,8 +103,8 @@ export class DocumentFolderDialog extends Component {
             </div>
           </div>
         </div>
-        <div className="bp3-dialog-footer">
-          <div className="bp3-dialog-footer-actions">
+        <div className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
               type="submit"
               disabled={blocking}
@@ -113,7 +113,7 @@ export class DocumentFolderDialog extends Component {
             />
           </div>
         </div>
-      </FormDialog >
+      </FormDialog>
     );
   }
 }
@@ -121,5 +121,5 @@ const mapDispatchToProps = { forceMutate, ingestDocument };
 export default compose(
   withRouter,
   connect(null, mapDispatchToProps),
-  injectIntl,
+  injectIntl
 )(DocumentFolderDialog);

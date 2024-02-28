@@ -1,13 +1,18 @@
-@import "app/variables.scss";
-@import "app/mixins.scss";
+@import 'app/variables.scss';
+@import 'app/mixins.scss';
 
 .Breadcrumbs {
   z-index: 1;
-  padding: $aleph-grid-size/2 $aleph-content-padding;
+  padding: $aleph-grid-size * 0.5 $aleph-content-padding;
   background-color: $aleph-breadcrumbs-background;
 
   @media screen and (max-width: $aleph-screen-sm-max-width) {
-    @include rtlSupportInvertedProp(padding, left, $aleph-mobile-content-padding, $aleph-mobile-content-padding);
+    @include rtlSupportInvertedProp(
+      padding,
+      left,
+      $aleph-mobile-content-padding,
+      $aleph-mobile-content-padding
+    );
   }
 
   &.casefile {
@@ -18,12 +23,13 @@
     background-color: $aleph-dataset-theme;
   }
 
-  &.casefile, &.dataset {
-    .bp3-breadcrumb {
+  &.casefile,
+  &.dataset {
+    .#{$bp-ns}-breadcrumb {
       color: white;
     }
 
-    .bp3-divider {
+    .#{$bp-ns}-divider {
       border-color: $light-gray4;
     }
   }
@@ -35,7 +41,8 @@
     align-items: center;
   }
 
-  &__main, &__right {
+  &__main,
+  &__right {
     margin: 2px 0;
   }
 
@@ -46,24 +53,26 @@
   &__right {
     display: flex;
 
-    .bp3-button-group {
+    .#{$bp-ns}-button-group {
       align-items: center;
     }
 
-    .bp3-divider:last-child {
+    .#{$bp-ns}-divider:last-child {
       display: none;
     }
 
-    .bp3-control-group, .bp3-input, .bp3-button-group {
+    .#{$bp-ns}-control-group,
+    .#{$bp-ns}-input,
+    .#{$bp-ns}-button-group {
       border-radius: $aleph-border-radius !important;
     }
 
-    .bp3-input-group {
-      min-width: $aleph-grid-size*20.5;
+    .#{$bp-ns}-input-group {
+      min-width: $aleph-grid-size * 20.5;
     }
   }
 
-  .bp3-breadcrumbs {
+  .#{$bp-ns}-breadcrumbs {
     height: auto;
     margin: 1px 0;
 
@@ -75,13 +84,13 @@
     }
   }
 
-  .bp3-breadcrumb {
+  .#{$bp-ns}-breadcrumb {
     font-size: $aleph-font-size;
 
     &.CollectionLabel {
       font-weight: 600;
 
-      .bp3-spinner-head {
+      .#{$bp-ns}-spinner-head {
         stroke: white;
       }
     }
@@ -92,10 +101,10 @@
     }
   }
 
-  .bp3-breadcrumb-current {
+  .#{$bp-ns}-breadcrumb-current {
     color: $blue1;
 
-    .bp3-spinner-head {
+    .#{$bp-ns}-spinner-head {
       stroke: $blue1;
     }
   }

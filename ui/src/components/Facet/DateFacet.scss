@@ -1,10 +1,10 @@
-@import "app/variables.scss";
-@import "app/mixins.scss";
+@import 'app/variables.scss';
+@import 'app/mixins.scss';
 
 .DateFacet {
-  &.bp3-card {
-    padding-top: $aleph-grid-size*2;
-    padding-bottom: $aleph-grid-size/2;
+  &.#{$bp-ns}-card {
+    padding-top: $aleph-grid-size * 2;
+    padding-bottom: $aleph-grid-size * 0.5;
     position: relative;
   }
 
@@ -14,7 +14,7 @@
     font-weight: bold;
   }
 
-  .bp3-spinner {
+  .#{$bp-ns}-spinner {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -22,27 +22,34 @@
   }
 
   &__secondary {
-    margin-bottom: $aleph-grid-size/2;
+    margin-bottom: $aleph-grid-size * 0.5;
     @include rtl(text-align, right, left);
 
-    &, .bp3-button-text {
+    &,
+    .#{$bp-ns}-button-text {
       font-size: 12px;
     }
 
-    .bp3-button-text:hover {
+    .#{$bp-ns}-button-text:hover {
       text-decoration: underline;
     }
 
-    .bp3-button {
+    .#{$bp-ns}-button {
       display: contents;
     }
+  }
+
+  &__parent-label {
+    font-weight: bold;
+    color: $blue2;
+    margin-bottom: $aleph-grid-size * 0.5;
   }
 
   .ErrorSection {
     min-height: unset;
 
-    .bp3-non-ideal-state {
-      .bp3-heading {
+    .#{$bp-ns}-non-ideal-state {
+      .#{$bp-ns}-heading {
         font-size: 16px;
       }
     }

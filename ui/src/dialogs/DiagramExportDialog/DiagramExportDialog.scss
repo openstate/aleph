@@ -1,12 +1,12 @@
-@import "app/variables.scss";
+@import 'app/variables.scss';
 
 .DiagramExportDialog {
-  &.bp3-dialog {
+  &.#{$bp-ns}-dialog {
     padding-bottom: 0;
   }
 
   &__section {
-    margin-bottom: $aleph-grid-size*1.5;
+    margin-bottom: $aleph-grid-size * 1.5;
 
     &:last-child {
       margin: 0;
@@ -18,7 +18,7 @@
   }
 
   &__embed-code {
-    .bp3-input {
+    .#{$bp-ns}-input {
       font-family: monospace;
     }
   }

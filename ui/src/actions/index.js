@@ -3,7 +3,7 @@ import { createAction } from 'redux-act';
 export { queryRoles, fetchRole, suggestRoles, updateRole } from './roleActions';
 export { createAlert, deleteAlert, queryAlerts } from './alertActions';
 export { queryNotifications } from './notificationActions';
-export { setConfigValue } from './configActions';
+export { setConfigValue, dismissHint } from './configActions';
 export { ingestDocument } from './documentActions';
 export {
   createCollection,
@@ -58,9 +58,20 @@ export {
   fetchProfileTags,
   pairwiseJudgement,
 } from './profileActions';
-export { fetchMetadata, fetchStatistics, fetchSystemStatus } from './metadataActions';
+export { fetchMessages, dismissMessage } from './messagesActions';
+export {
+  fetchMetadata,
+  fetchStatistics,
+  fetchSystemStatus,
+} from './metadataActions';
 export { loginWithToken, loginWithPassword, logout } from './sessionActions';
 export { fetchExports, triggerQueryExport } from './exportActions';
+export {
+  queryBookmarks,
+  createBookmark,
+  deleteBookmark,
+  migrateLocalBookmarks,
+} from './bookmarkActions';
 
 export { createAction };
 export const setLocale = createAction('SET_LOCALE');

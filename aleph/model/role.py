@@ -5,7 +5,8 @@ from sqlalchemy import or_, not_, func
 from itsdangerous import URLSafeTimedSerializer
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from aleph.core import db, settings
+from aleph.core import db
+from aleph.settings import SETTINGS
 from aleph.model.common import SoftDeleteModel, IdModel, make_token, query_like
 from aleph.util import anonymize_email
 
@@ -33,7 +34,7 @@ class Role(db.Model, IdModel, SoftDeleteModel):
     SYSTEM_USER = "user"
 
     #: Generates URL-safe signatures for invitations.
-    SIGNATURE = URLSafeTimedSerializer(settings.SECRET_KEY)
+    SIGNATURE = URLSafeTimedSerializer(SETTINGS.SECRET_KEY)
 
     #: Signature maximum age, defaults to 1 day
     SIGNATURE_MAX_AGE = 60 * 60 * 24
@@ -76,7 +77,7 @@ class Role(db.Model, IdModel, SoftDeleteModel):
             return False
         if self.is_muted:
             return False
-        if self.updated_at < (datetime.utcnow() - settings.ROLE_INACTIVE):
+        if self.updated_at < (datetime.utcnow() - SETTINGS.ROLE_INACTIVE):
             # Disable sending notifications to roles that haven't been
             # logged in for a set amount of time.
             return False
@@ -110,6 +111,13 @@ class Role(db.Model, IdModel, SoftDeleteModel):
     def add_role(self, role):
         """Adds an existing role as a membership of a group."""
         self.roles.append(role)
+        db.session.add(role)
+        db.session.add(self)
+        self.updated_at = datetime.utcnow()
+
+    def remove_role(self, role):
+        """Remove an existing role as a membership of a group"""
+        self.roles.remove(role)
         db.session.add(role)
         db.session.add(self)
         self.updated_at = datetime.utcnow()
@@ -177,7 +185,7 @@ class Role(db.Model, IdModel, SoftDeleteModel):
         return q.first()
 
     @classmethod
-    def load_or_create(cls, foreign_id, type_, name, email=None, is_admin=None):
+    def load_or_create(cls, foreign_id, type_, name, email=None, is_admin=False):
         role = cls.by_foreign_id(foreign_id)
 
         if role is None:
@@ -185,7 +193,7 @@ class Role(db.Model, IdModel, SoftDeleteModel):
             role.foreign_id = foreign_id
             role.name = name or email
             role.type = type_
-            role.is_admin = False
+            role.is_admin = is_admin
             role.is_muted = False
             role.is_tester = False
             role.is_blocked = False
@@ -197,14 +205,6 @@ class Role(db.Model, IdModel, SoftDeleteModel):
         if email is not None:
             role.email = email
 
-        if is_admin is not None:
-            role.is_admin = is_admin
-
-        # see: https://github.com/alephdata/aleph/issues/111
-        auto_admins = [a.lower() for a in settings.ADMINS]
-        if email is not None and email.lower() in auto_admins:
-            role.is_admin = True
-
         db.session.add(role)
         db.session.flush()
         return role
@@ -212,19 +212,19 @@ class Role(db.Model, IdModel, SoftDeleteModel):
     @classmethod
     def load_cli_user(cls):
         return cls.load_or_create(
-            settings.SYSTEM_USER, cls.USER, "Aleph", is_admin=True
+            SETTINGS.SYSTEM_USER, cls.USER, "Aleph", is_admin=True
         )
 
     @classmethod
     def load_id(cls, foreign_id):
         """Load a role and return the ID."""
-        if not hasattr(settings, "_roles"):
-            settings._roles = {}
-        if foreign_id not in settings._roles:
+        if not hasattr(SETTINGS, "_roles"):
+            SETTINGS._roles = {}
+        if foreign_id not in SETTINGS._roles:
             role_id = cls.all_ids().filter_by(foreign_id=foreign_id).first()
             if role_id is not None:
-                settings._roles[foreign_id] = role_id[0]
-        return settings._roles.get(foreign_id)
+                SETTINGS._roles[foreign_id] = role_id[0]
+        return SETTINGS._roles.get(foreign_id)
 
     @classmethod
     def public_roles(cls):
@@ -232,13 +232,13 @@ class Role(db.Model, IdModel, SoftDeleteModel):
         return set([cls.load_id(cls.SYSTEM_USER), cls.load_id(cls.SYSTEM_GUEST)])
 
     @classmethod
-    def by_prefix(cls, prefix, exclude=[]):
+    def by_prefix(cls, prefix, exclude=None):
         """Load a list of roles matching a name, email address, or foreign_id.
 
         :param str pattern: Pattern to match.
         """
         q = cls.all_users()
-        if len(exclude):
+        if exclude:
             q = q.filter(not_(Role.id.in_(exclude)))
         q = q.filter(
             or_(func.lower(cls.email) == prefix.lower(), query_like(cls.name, prefix))

@@ -1,10 +1,10 @@
-import { Count } from '@alephdata/react-ftm';
+import { Count } from 'react-ftm';
 import { connect } from 'react-redux';
 
 import { selectLocale } from 'selectors';
 import './Count.scss';
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   locale: selectLocale(state),
 });
 

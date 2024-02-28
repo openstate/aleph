@@ -1,12 +1,19 @@
-@import "app/variables.scss";
-@import "app/mixins.scss";
+@use 'sass:math';
+
+@import 'app/variables.scss';
+@import 'app/mixins.scss';
 
 .SortableTH {
   div {
     display: flex;
 
     .caret {
-      @include rtlSupportInvertedProp(margin, left, $aleph-grid-size/3, null);
+      @include rtlSupportInvertedProp(
+        margin,
+        left,
+        math.div($aleph-grid-size, 3),
+        null
+      );
       transition: opacity 0.1s;
 
       &.hidden {

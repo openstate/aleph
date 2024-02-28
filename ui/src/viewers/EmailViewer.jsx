@@ -1,27 +1,37 @@
 import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Pre } from '@blueprintjs/core';
+import { Classes, Pre } from '@blueprintjs/core';
 
 import { Property, Skeleton } from 'components/common';
 import wordList from 'util/wordList';
 
 import './EmailViewer.scss';
 
-
 class EmailViewer extends PureComponent {
   headerProperty(name, entitiesProp) {
     const { document } = this.props;
     const prop = document.schema.getProperty(name);
     const values = document.getProperty(prop).map((value) => {
-      let result = <Property.Value key={value.id || value} prop={prop} value={value} />;
+      let result = (
+        <Property.Value key={value.id || value} prop={prop} value={value} />
+      );
       if (entitiesProp) {
         const normValue = value.toLowerCase().trim();
         const eprop = document.schema.getProperty(entitiesProp);
         document.getProperty(eprop).forEach((entity) => {
-          if (!entity?.id) { return; }
+          if (!entity?.id) {
+            return;
+          }
           entity.getProperty('email').forEach((email) => {
             if (normValue.indexOf(email.toLowerCase().trim()) !== -1) {
-              result = <Property.Value key={entity.id} prop={eprop} value={entity} translitLookup={entity.latinized} />;
+              result = (
+                <Property.Value
+                  key={entity.id}
+                  prop={eprop}
+                  value={entity}
+                  translitLookup={entity.latinized}
+                />
+              );
             }
           });
         });
@@ -46,7 +56,7 @@ class EmailViewer extends PureComponent {
     }
     return (
       <div className="email-header">
-        <table className="bp3-html-table">
+        <table className={Classes.HTML_TABLE}>
           <tbody>
             {this.headerProperty('from', 'emitters')}
             {this.headerProperty('date')}
@@ -63,19 +73,28 @@ class EmailViewer extends PureComponent {
 
   renderBody() {
     const { document } = this.props;
+
     if (document.isPending) {
       return <Skeleton.Text type="span" length={1000} />;
     }
+
     if (document.safeHtml && document.safeHtml.length) {
-      return <span dangerouslySetInnerHTML={{ __html: document.safeHtml }} />;
+      return document.safeHtml.map((value, index) => (
+        <div key={index} dangerouslySetInnerHTML={{ __html: value }} />
+      ));
     }
+
     const bodyText = document.getFirst('bodyText');
     if (bodyText && bodyText.length > 0) {
       return <Pre>{bodyText}</Pre>;
     }
+
     return (
-      <p className="bp3-text-muted">
-        <FormattedMessage id="email.body.empty" defaultMessage="No message body." />
+      <p className={Classes.TEXT_MUTED}>
+        <FormattedMessage
+          id="email.body.empty"
+          defaultMessage="No message body."
+        />
       </p>
     );
   }

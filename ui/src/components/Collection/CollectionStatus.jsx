@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { injectIntl, defineMessages, FormattedMessage } from 'react-intl';
-import { ProgressBar, Intent, Button } from '@blueprintjs/core';
+import { Classes, ProgressBar, Intent, Button } from '@blueprintjs/core';
 import { Tooltip2 as Tooltip } from '@blueprintjs/popover2';
 import c from 'classnames';
 
@@ -38,7 +38,7 @@ class CollectionStatus extends Component {
     }
     return (
       <div className={c('CollectionStatus', className)}>
-        <h4 className="bp3-heading">
+        <h4 className={Classes.HEADING}>
           <FormattedMessage
             id="collection.status.title"
             defaultMessage="Update in progress ({percent}%)"
@@ -46,7 +46,11 @@ class CollectionStatus extends Component {
           />
         </h4>
         <div className="progress-area">
-          <ProgressBar animate intent={Intent.PRIMARY} value={status.progress} />
+          <ProgressBar
+            animate
+            intent={Intent.PRIMARY}
+            value={status.progress}
+          />
           {showCancel && (
             <Tooltip content={intl.formatMessage(messages.cancel_button)}>
               <Button onClick={this.onCancel} icon="delete" minimal />

@@ -1,17 +1,22 @@
 import React, { PureComponent, Component } from 'react';
-import { ControlGroup, Divider, Icon } from '@blueprintjs/core';
+import { Classes, Divider, Icon } from '@blueprintjs/core';
 import c from 'classnames';
 
-import { Collection, Entity, EntitySet, Skeleton, Restricted } from 'components/common';
+import {
+  Collection,
+  Entity,
+  EntitySet,
+  Skeleton,
+  Restricted,
+} from 'components/common';
 
 import './Breadcrumbs.scss';
-
 
 class CollectionBreadcrumb extends PureComponent {
   renderSkeleton() {
     return (
       <li>
-        <Skeleton.Text type="span" length={20} className="bp3-breadcrumb" />
+        <Skeleton.Text type="span" length={20} className={Classes.BREADCRUMB} />
       </li>
     );
   }
@@ -26,7 +31,10 @@ class CollectionBreadcrumb extends PureComponent {
       <li key={collection.id}>
         <Collection.Status
           collection={collection}
-          className={c('bp3-breadcrumb', { 'bp3-breadcrumb-current': active })}
+          className={c(
+            Classes.BREADCRUMB,
+            active && Classes.BREADCRUMB_CURRENT
+          )}
           icon
           truncate={75}
           LabelComponent={Collection.Link}
@@ -46,20 +54,29 @@ class EntityBreadcrumb extends PureComponent {
 
     return (
       <>
-        { hasAncestors && (
+        {hasAncestors && (
           <li key="ancestors">
-            <span className="bp3-breadcrumb">
+            <span className={Classes.BREADCRUMB}>
               <Icon icon="more" />
             </span>
           </li>
         )}
-        { !!parent && (
+        {!!parent && (
           <li key={parent.id}>
-            <Entity.Link entity={parent} className="bp3-breadcrumb" icon truncate={30} />
+            <Entity.Link
+              entity={parent}
+              className={Classes.BREADCRUMB}
+              icon
+              truncate={30}
+            />
           </li>
         )}
         <li key={entity.id}>
-          <Entity.Label entity={entity} className="bp3-breadcrumb bp3-breadcrumb-current" truncate={30} />
+          <Entity.Label
+            entity={entity}
+            className={c(Classes.BREADCRUMB, Classes.BREADCRUMB_CURRENT)}
+            truncate={30}
+          />
         </li>
       </>
     );
@@ -71,12 +88,16 @@ class EntitySetBreadcrumb extends PureComponent {
     const { entitySet, icon } = this.props;
     return (
       <li key={entitySet.id}>
-        <EntitySet.Label entitySet={entitySet} className="bp3-breadcrumb bp3-breadcrumb-current" icon={icon} truncate={30} />
+        <EntitySet.Label
+          entitySet={entitySet}
+          className={c(Classes.BREADCRUMB, Classes.BREADCRUMB_CURRENT)}
+          icon={icon}
+          truncate={30}
+        />
       </li>
     );
   }
 }
-
 
 class TextBreadcrumb extends PureComponent {
   render() {
@@ -84,7 +105,10 @@ class TextBreadcrumb extends PureComponent {
     if (!children) {
       return null;
     }
-    const className = c('bp3-breadcrumb', { 'bp3-breadcrumb-current': active });
+    const className = c(
+      Classes.BREADCRUMB,
+      active && Classes.BREADCRUMB_CURRENT
+    );
     return (
       <li key={key || 'text'}>
         <span className={className}>
@@ -108,30 +132,35 @@ export default class Breadcrumbs extends Component {
   renderOperations() {
     const { operation, search, status } = this.props;
     return (
-      <ControlGroup>
+      <>
         {status}
-        {(status && search) && <Divider />}
+        {status && search && <Divider />}
         {search}
-        {(search && operation) && <Divider />}
+        {search && operation && <Divider />}
         {operation}
-      </ControlGroup>
+      </>
     );
+  }
+
+  renderCenter() {
+    if (!this.props.center) {
+      return null;
+    }
+
+    return <div className="Breadcrumbs__center">{this.props.center}</div>;
   }
 
   render() {
     const { children, type } = this.props;
 
     return (
-      <nav className={c("Breadcrumbs", type)}>
+      <nav className={c('Breadcrumbs', type)}>
         <div className="Breadcrumbs__inner-container">
           <div className="Breadcrumbs__main">
-            <ul className="bp3-breadcrumbs">
-              {children}
-            </ul>
+            <ul className={Classes.BREADCRUMBS}>{children}</ul>
           </div>
-          <div className="Breadcrumbs__right">
-            {this.renderOperations()}
-          </div>
+          {this.renderCenter()}
+          <div className="Breadcrumbs__right">{this.renderOperations()}</div>
         </div>
       </nav>
     );

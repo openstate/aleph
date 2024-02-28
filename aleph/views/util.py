@@ -6,13 +6,13 @@ from banal import as_bool, ensure_dict, is_mapping, is_listish
 from normality import stringify
 from flask import Response, request, render_template
 from flask_babel import gettext
-from werkzeug.urls import url_parse
+from urllib.parse import urlparse
 from werkzeug.exceptions import Forbidden
 from werkzeug.exceptions import BadRequest, NotFound
 from servicelayer.jobs import Job
 
 from aleph.authz import Authz
-from aleph.model import Collection, EntitySet, Role
+from aleph.model import Collection, EntitySet
 from aleph.validation import get_validator
 from aleph.index.entities import get_entity as _get_index_entity
 from aleph.index.collections import get_collection as _get_index_collection
@@ -59,11 +59,13 @@ def parse_request(schema):
 def validate(data, schema):
     """Validate the data inside a request against a schema."""
     validator = get_validator(schema)
-    # data = clean_object(data)
     errors = {}
     for error in validator.iter_errors(data):
         path = ".".join((str(c) for c in error.path))
-        errors[path] = error.message
+        if path not in errors:
+            errors[path] = error.message
+        else:
+            errors[path] += "; " + error.message
         log.info("ERROR [%s]: %s", path, error.message)
 
     if not len(errors):
@@ -134,7 +136,7 @@ def get_index_collection(collection_id, action=Authz.READ):
 
 def get_url_path(url):
     try:
-        return url_parse(url).replace(netloc="", scheme="").to_url() or "/"
+        return urlparse(url)._replace(netloc="", scheme="").geturl() or "/"
     except Exception:
         return "/"
 

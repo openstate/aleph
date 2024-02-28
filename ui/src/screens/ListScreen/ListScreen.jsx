@@ -3,7 +3,7 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import queryString from 'query-string';
 
-import withRouter from 'app/withRouter'
+import withRouter from 'app/withRouter';
 import { fetchEntitySet, queryEntitySetEntities } from 'actions';
 import { selectEntitySet, selectEntitiesResult, selectModel } from 'selectors';
 import { entitySetSchemaCountsQuery, entitySetEntitiesQuery } from 'queries';
@@ -22,7 +22,8 @@ import './ListScreen.scss';
 export class ListScreen extends Component {
   constructor(props) {
     super(props);
-    this.navigate = this.navigate.bind(this);
+    this.getLink = this.getLink.bind(this);
+    this.onSchemaSelect = this.onSchemaSelect.bind(this);
   }
 
   componentDidMount() {
@@ -44,15 +45,17 @@ export class ListScreen extends Component {
     }
   }
 
-  navigate(schema) {
-    const { navigate, location } = this.props;
+  getLink(schema) {
+    const { location } = this.props;
     const parsedHash = queryString.parse(location.hash);
     parsedHash.type = schema;
-    navigate({
-      pathname: location.pathname,
-      search: "",
-      hash: queryString.stringify(parsedHash),
-    });
+
+    return `${location.pathname}/#${queryString.stringify(parsedHash)}`;
+  }
+
+  onSchemaSelect(schema) {
+    const { navigate } = this.props;
+    navigate(this.getLink(schema));
   }
 
   processCounts = () => {
@@ -66,7 +69,7 @@ export class ListScreen extends Component {
       counts[id] = count;
     });
     return counts;
-  }
+  };
 
   render() {
     const { activeSchema, list, querySchemaEntities } = this.props;
@@ -79,31 +82,31 @@ export class ListScreen extends Component {
       return <LoadingScreen />;
     }
 
-    const operation = (
-      <EntitySetManageMenu entitySet={list} />
-    );
+    const operation = <EntitySetManageMenu entitySet={list} />;
 
     const breadcrumbs = (
       <Breadcrumbs operation={operation}>
         <Breadcrumbs.Text>
-          <CollectionView.Link id={collectionViewIds.LISTS} collection={list.collection} icon />
+          <CollectionView.Link
+            id={collectionViewIds.LISTS}
+            collection={list.collection}
+            icon
+          />
         </Breadcrumbs.Text>
-        <Breadcrumbs.EntitySet key="list" entitySet={list} icon={false}/>
+        <Breadcrumbs.EntitySet key="list" entitySet={list} icon={false} />
       </Breadcrumbs>
     );
 
     return (
-      <Screen
-        title={list.label}
-        description={list.summary || ''}
-      >
+      <Screen title={list.label} description={list.summary || ''}>
         <CollectionWrapper collection={list.collection}>
           {breadcrumbs}
           <DualPane className="ListScreen">
             <div className="ListScreen__schema-counts">
               <SchemaCounts
                 schemaCounts={this.processCounts()}
-                onSelect={this.navigate}
+                link={this.getLink}
+                onSelect={this.onSchemaSelect}
                 showSchemaAdd={list.writeable}
                 activeSchema={activeSchema.name}
               />
@@ -130,9 +133,10 @@ const mapStateToProps = (state, ownProps) => {
 
   const model = selectModel(state);
   const list = selectEntitySet(state, entitySetId);
-  const countsQuery = entitySetSchemaCountsQuery(entitySetId)
+  const countsQuery = entitySetSchemaCountsQuery(entitySetId);
   const countsResult = selectEntitiesResult(state, countsQuery);
-  const querySchemaEntities = (schema) => entitySetEntitiesQuery(location, entitySetId, schema.name, 30);
+  const querySchemaEntities = (schema) =>
+    entitySetEntitiesQuery(location, entitySetId, schema.name, 30);
   const hashQuery = queryString.parse(location.hash);
 
   return {
@@ -145,8 +149,7 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-
 export default compose(
   withRouter,
-  connect(mapStateToProps, { fetchEntitySet, queryEntitySetEntities }),
+  connect(mapStateToProps, { fetchEntitySet, queryEntitySetEntities })
 )(ListScreen);

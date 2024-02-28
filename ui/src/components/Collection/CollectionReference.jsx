@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormattedMessage, injectIntl } from 'react-intl';
-import { Divider } from '@blueprintjs/core';
+import { Classes, Divider } from '@blueprintjs/core';
+import c from 'classnames';
 
 import { ClipboardInput } from 'components/common';
 
@@ -14,7 +15,10 @@ class CollectionReference extends React.PureComponent {
       <div className="CollectionReference">
         <div className="CollectionReference__section">
           <div className="key text-muted">
-            <FormattedMessage id="collection.foreign_id" defaultMessage="Foreign ID" />
+            <FormattedMessage
+              id="collection.foreign_id"
+              defaultMessage="Foreign ID"
+            />
           </div>
           <div className="value">
             <ClipboardInput value={collection.foreign_id} />
@@ -23,11 +27,14 @@ class CollectionReference extends React.PureComponent {
         <Divider />
         <div className="CollectionReference__section">
           <div className="key text-muted">
-            <FormattedMessage id="collection.reconcile" defaultMessage="Reconciliation" />
+            <FormattedMessage
+              id="collection.reconcile"
+              defaultMessage="Reconciliation"
+            />
           </div>
           <div className="value">
             <ClipboardInput value={collection.links.reconcile} />
-            <span className="bp3-text-small bp3-text-muted">
+            <span className={c(Classes.TEXT_SMALL, Classes.TEXT_MUTED)}>
               <FormattedMessage
                 id="collection.reconcile.description"
                 defaultMessage="Match your own data against the entities in this collection using the free {openrefine}

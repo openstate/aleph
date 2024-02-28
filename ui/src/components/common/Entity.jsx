@@ -2,9 +2,9 @@ import React, { Component, PureComponent } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import c from 'classnames';
-import { Entity as VLEntity } from '@alephdata/react-ftm';
+import { Entity as VLEntity } from 'react-ftm';
 
-import withRouter from 'app/withRouter'
+import withRouter from 'app/withRouter';
 import EntitySelect from 'components/common/EntitySelect';
 import togglePreview from 'util/togglePreview';
 import { fetchEntity } from 'actions';
@@ -20,11 +20,16 @@ class EntityLink extends PureComponent {
   }
 
   onClick(event) {
-    const { entity, navigate, location, preview, profile = true} = this.props;
-    if (preview) {
-      event.preventDefault();
-      togglePreview(navigate, location, entity, profile);
+    const { entity, navigate, location, preview, profile = true } = this.props;
+    const modifierPressed =
+      event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
+
+    if (!preview || modifierPressed) {
+      return;
     }
+
+    event.preventDefault();
+    togglePreview(navigate, location, entity, profile);
   }
 
   render() {
@@ -39,14 +44,13 @@ class EntityLink extends PureComponent {
       <Link
         to={link}
         onClick={preview ? this.onClick : undefined}
-        className={c('EntityLink', className, {visited: !!entity.lastViewed})}
+        className={c('EntityLink', className, { visited: !!entity.lastViewed })}
       >
         {content}
       </Link>
     );
   }
 }
-
 
 class EntityLoad extends Component {
   componentDidMount() {

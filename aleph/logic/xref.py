@@ -16,7 +16,8 @@ from followthemoney_compare.models import GLMBernoulli2EEvaluator
 from followthemoney.proxy import EntityProxy
 from servicelayer.archive.util import ensure_path
 
-from aleph.core import es, db, settings
+from aleph.core import es, db
+from aleph.settings import SETTINGS
 from aleph.model import Collection, Entity, Role, Export, Status
 from aleph.model import EntitySet
 from aleph.authz import Authz
@@ -66,17 +67,17 @@ def _bulk_compare_ftmc_model(proxies):
 def _bulk_compare(proxies):
     if not proxies:
         return
-    if settings.XREF_MODEL is None:
+    if SETTINGS.XREF_MODEL is None:
         yield from _bulk_compare_ftm(proxies)
         return
     global MODEL
     if MODEL is None:
         try:
-            with open(settings.XREF_MODEL, "rb") as fd:
+            with open(SETTINGS.XREF_MODEL, "rb") as fd:
                 MODEL = GLMBernoulli2EEvaluator.from_pickles(fd.read())
         except FileNotFoundError:
-            log.exception(f"Could not find model file: {settings.XREF_MODEL}")
-            settings.XREF_MODEL = None
+            log.exception(f"Could not find model file: {SETTINGS.XREF_MODEL}")
+            SETTINGS.XREF_MODEL = None
             yield from _bulk_compare_ftm(proxies)
             return
     yield from _bulk_compare_ftmc_model(proxies)
@@ -145,6 +146,8 @@ def _iter_mentions(collection):
         collection_id=collection.id,
         schemata=["Mention"],
         sort={"properties.resolved": "desc"},
+        es_scroll=SETTINGS.XREF_SCROLL,
+        es_scroll_size=SETTINGS.XREF_SCROLL_SIZE,
     ):
         resolved_id = mention.first("resolved")
         if resolved_id != proxy.id:
@@ -191,7 +194,12 @@ def _query_entities(collection):
     """Generate matches for indexing."""
     log.info("[%s] Generating entity-based xref...", collection)
     matchable = [s for s in model if s.matchable]
-    for proxy in iter_proxies(collection_id=collection.id, schemata=matchable):
+    for proxy in iter_proxies(
+        collection_id=collection.id,
+        schemata=matchable,
+        es_scroll=SETTINGS.XREF_SCROLL,
+        es_scroll_size=SETTINGS.XREF_SCROLL_SIZE,
+    ):
         yield from _query_item(proxy)
 
 
@@ -206,12 +214,15 @@ def xref_entity(collection, proxy):
 
 def xref_collection(collection):
     """Cross-reference all the entities and documents in a collection."""
-    log.info("[%s] Clearing previous xref state....", collection)
+    log.info(
+        f"[{collection}] xref_collection scroll settings: scroll={SETTINGS.XREF_SCROLL}, scroll_size={SETTINGS.XREF_SCROLL_SIZE}"
+    )
+    log.info(f"[{collection}] Clearing previous xref state....")
     delete_xref(collection, sync=True)
     delete_entities(collection.id, origin=ORIGIN, sync=True)
     index_matches(collection, _query_entities(collection))
     index_matches(collection, _query_mentions(collection))
-    log.info("[%s] Xref done, re-indexing to reify mentions...", collection)
+    log.info(f"[{collection}] Xref done, re-indexing to reify mentions...")
     reindex_collection(collection, sync=False)
 
 

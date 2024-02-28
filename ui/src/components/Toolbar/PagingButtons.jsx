@@ -1,13 +1,18 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import queryString from 'query-string';
-import { ButtonGroup, AnchorButton, Divider, InputGroup } from '@blueprintjs/core';
+import {
+  ButtonGroup,
+  AnchorButton,
+  Divider,
+  InputGroup,
+} from '@blueprintjs/core';
 
-import withRouter from 'app/withRouter'
+import withRouter from 'app/withRouter';
 import normalizeDegreeValue from 'util/normalizeDegreeValue';
+import { FeedbackButton } from 'components/common';
 
 import './PagingButtons.scss';
-
 
 class PagingButtons extends React.Component {
   constructor(props) {
@@ -46,7 +51,7 @@ class PagingButtons extends React.Component {
 
   changePageInput = (e) => {
     this.setState({ pageInputVal: e.target.value });
-  }
+  };
 
   goToPage = (e) => {
     e.preventDefault();
@@ -58,6 +63,45 @@ class PagingButtons extends React.Component {
     navigate({
       hash: queryString.stringify(parsedHash),
     });
+  };
+
+  renderFeedback() {
+    const { document } = this.props;
+
+    const popoverContent = (
+      <>
+        <p>
+          <strong>
+            <FormattedMessage
+              id="document.report_problem.title"
+              defaultMessage="Does the document preview look strange? Is the extracted text incorrect, or is the information incomplete?"
+            />
+          </strong>
+        </p>
+        <p>
+          <FormattedMessage
+            id="document.report_problem.text"
+            defaultMessage="You can now easily report such problems to the Aleph team. This helps us improve how Aleph processes and displays documents."
+          />
+        </p>
+      </>
+    );
+
+    return (
+      <FeedbackButton
+        minimal
+        type="documents"
+        entityUrl={document.links.ui}
+        popoverContent={popoverContent}
+      >
+        <span className="PagingButtons__feedback">
+          <FormattedMessage
+            id="document.report_problem"
+            defaultMessage="Report a problem"
+          />
+        </span>
+      </FeedbackButton>
+    );
   }
 
   render() {
@@ -70,18 +114,28 @@ class PagingButtons extends React.Component {
 
     // Only displays paging buttons on PDF docs
     // Having the logic here makes it easier to use this component.
-    if (page && page > 0
-        && numberOfPages && numberOfPages > 0) {
+    if (page && page > 0 && numberOfPages && numberOfPages > 0) {
       return (
-        <ButtonGroup className="PagingButtons" fill>
-          <AnchorButton minimal href={`#${this.getPageLink(page - 1)}`} icon="arrow-left" disabled={page <= 1} />
+        <div className="PagingButtons">
+          <div className="PagingButtons__left">
+            <AnchorButton
+              minimal
+              href={`#${this.getPageLink(page - 1)}`}
+              icon="arrow-left"
+              disabled={page <= 1}
+            />
+          </div>
           <div className="PagingButtons__middle">
             <FormattedMessage
               id="document.paging"
               defaultMessage="Page {pageInput} of {numberOfPages}"
               values={{
                 pageInput: (
-                  <form className="PagingButtons__input" onSubmit={this.goToPage} autoComplete="off">
+                  <form
+                    className="PagingButtons__input"
+                    onSubmit={this.goToPage}
+                    autoComplete="off"
+                  >
                     <InputGroup
                       id="page"
                       onChange={this.changePageInput}
@@ -96,20 +150,37 @@ class PagingButtons extends React.Component {
               }}
             />
           </div>
-          {showRotateButtons && (
-            <>
-              <AnchorButton minimal href={`#${this.getRotateLink(-90)}`} icon="image-rotate-left" />
-              <AnchorButton minimal href={`#${this.getRotateLink(90)}`} icon="image-rotate-right" />
-              <Divider />
-            </>
-          )}
-          <AnchorButton minimal href={`#${this.getPageLink(page + 1)}`} icon="arrow-right" disabled={page >= numberOfPages} />
-        </ButtonGroup>
+          <div className="PagingButtons__right">
+            <ButtonGroup>
+              {this.renderFeedback()}
+              {showRotateButtons && (
+                <>
+                  <AnchorButton
+                    minimal
+                    href={`#${this.getRotateLink(-90)}`}
+                    icon="image-rotate-left"
+                  />
+                  <AnchorButton
+                    minimal
+                    href={`#${this.getRotateLink(90)}`}
+                    icon="image-rotate-right"
+                  />
+                  <Divider />
+                </>
+              )}
+              <AnchorButton
+                minimal
+                href={`#${this.getPageLink(page + 1)}`}
+                icon="arrow-right"
+                disabled={page >= numberOfPages}
+              />
+            </ButtonGroup>
+          </div>
+        </div>
       );
     }
     return null;
   }
 }
-
 
 export default withRouter(PagingButtons);

@@ -1,12 +1,12 @@
-@import "app/variables.scss";
-@import "app/mixins.scss";
+@import 'app/variables.scss';
+@import 'app/mixins.scss';
 
 $font-size: 13px;
 
 .SortingBar {
   position: relative;
   white-space: nowrap;
-  @include rtl(text-align, right, left)
+  @include rtl(text-align, right, left);
 
   &__item {
     display: inline-block;
@@ -17,16 +17,22 @@ $font-size: 13px;
     }
   }
 
-  &__label, &__control {
+  &__label,
+  &__control {
     display: inline-block !important;
   }
 
   &__label {
-    @include rtlSupportInvertedProp(margin, right, $aleph-grid-size/2, null);
+    @include rtlSupportInvertedProp(
+      margin,
+      right,
+      $aleph-grid-size * 0.5,
+      null
+    );
     font-size: $font-size;
   }
   &__control {
-    .bp3-button {
+    .#{$bp-ns}-button {
       color: $blue2 !important;
       border-bottom: 1px solid $aleph-border-color;
       border-radius: 0;

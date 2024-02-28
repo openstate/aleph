@@ -1,8 +1,8 @@
-@import "app/variables.scss";
+@import 'app/variables.scss';
 
 .CollectionViews {
   &__tabs {
-    & > .bp3-tab-list {
+    & > .#{$bp-ns}-tab-list {
       padding-bottom: 10px;
       border-bottom: 1px solid $aleph-border-color;
     }

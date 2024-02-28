@@ -1,7 +1,7 @@
 # Translations template for PROJECT.
-# Copyright (C) 2022 ORGANIZATION
+# Copyright (C) 2023 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 # 
 # Translators:
 # Eman Alqaisi <eman@arij.net>, 2020
@@ -13,18 +13,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-28 10:50+0200\n"
+"POT-Creation-Date: 2023-07-13 10:25+0000\n"
 "PO-Revision-Date: 2018-03-15 07:37+0000\n"
 "Last-Translator: Mohammed AlKawmani <komani@arij.net>, 2020\n"
-"Language-Team: Arabic (https://www.transifex.com/aleph/teams/76591/ar/)\n"
+"Language-Team: Arabic (https://app.transifex.com/aleph/teams/76591/ar/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.11.0\n"
 "Language: ar\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: aleph/settings.py:31
+#: aleph/settings.py:38
 msgid "Aleph"
 msgstr "ألف"
 
@@ -36,7 +36,7 @@ msgstr "لا جزئية في هذا الكل "
 msgid "[HTML removed: could not be sanitized]"
 msgstr "[تمت إزالة HTML: تعذر تنظيف المحتوى]"
 
-#: aleph/logic/roles.py:59
+#: aleph/logic/roles.py:60
 msgid "Registration"
 msgstr "التسجيل"
 
@@ -228,7 +228,7 @@ msgstr ""
 msgid "{{export}} is ready for download"
 msgstr ""
 
-#: aleph/search/__init__.py:52
+#: aleph/search/__init__.py:76
 msgid "No schema is specified for the query."
 msgstr "لم يتم تحديد مخطط للاستعلام."
 
@@ -342,23 +342,23 @@ msgstr "اسم مخطط غير صحيح : 1%s"
 msgid "Invalid date: %s"
 msgstr "تاريخ خاطئ 1%s"
 
-#: aleph/views/base_api.py:214
+#: aleph/views/base_api.py:226
 msgid "You are not authorized to do this."
 msgstr "غير مخول للقيام بذلك."
 
-#: aleph/views/base_api.py:223
+#: aleph/views/base_api.py:235
 msgid "This path does not exist."
 msgstr "هذا المسار غير موجود."
 
-#: aleph/views/base_api.py:230
+#: aleph/views/base_api.py:242
 msgid "Internal server error."
 msgstr "خطأ في الخادم الداخلي."
 
-#: aleph/views/base_api.py:244
+#: aleph/views/base_api.py:256
 msgid "Access token is invalid."
 msgstr "رمز الدخول غير صحيح"
 
-#: aleph/views/entities_api.py:172
+#: aleph/views/entities_api.py:173
 #, python-format
 msgid "Search: %s"
 msgstr ""
@@ -367,25 +367,33 @@ msgstr ""
 msgid "Only diagrams can be embedded!"
 msgstr ""
 
-#: aleph/views/roles_api.py:61
+#: aleph/views/roles_api.py:62
 msgid "prefix filter is too short"
 msgstr "مرشح البادئة قصير جدًا"
 
-#: aleph/views/roles_api.py:106
+#: aleph/views/roles_api.py:107
 msgid "To proceed, please check your email."
 msgstr "للمتابعة ، يرجى مراجعة بريدك الإلكتروني."
 
-#: aleph/views/roles_api.py:139
+#: aleph/views/roles_api.py:140
 msgid "Invalid code"
 msgstr "الرمز غير صحيح"
 
-#: aleph/views/roles_api.py:145
+#: aleph/views/roles_api.py:146
 msgid "Email is already registered"
 msgstr " البريد الإلكتروني مسجل سابقا"
 
-#: aleph/views/roles_api.py:232
+#: aleph/views/roles_api.py:235
 msgid "Incorrect password."
 msgstr "كلمة المرور خاطئة"
+
+#: aleph/views/serializers.py:103
+#, python-format
+msgid ""
+"We found %(total)d results, but could not load them due to a technical "
+"problem. Please check back later and if the problem persists contact an "
+"Aleph administrator"
+msgstr ""
 
 #: aleph/views/sessions_api.py:61
 msgid "Invalid user or password."
@@ -395,6 +403,6 @@ msgstr "اسم مستخدم أو كلمة مرور غير صحيحة"
 msgid "Authentication has failed."
 msgstr "فشل التوثيق "
 
-#: aleph/views/util.py:76
+#: aleph/views/util.py:78
 msgid "Error during data validation"
 msgstr "حدث خطأ أثناء التحقق من صحة البيانات"

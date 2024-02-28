@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button, Intent, Checkbox } from '@blueprintjs/core';
+import { Button, Classes, Intent, Checkbox } from '@blueprintjs/core';
+import c from 'classnames';
 import { defineMessages, FormattedMessage, injectIntl } from 'react-intl';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
@@ -8,7 +9,6 @@ import FormDialog from 'dialogs/common/FormDialog';
 import { showSuccessToast, showWarningToast } from 'app/toast';
 import { updateCollection } from 'actions';
 import { selectMetadata, selectAdmin } from 'selectors';
-
 
 const messages = defineMessages({
   placeholder_label: {
@@ -90,13 +90,15 @@ export class CollectionEditDialog extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    const collection = state.changed ? state.collection : { ...props.collection };
+    const collection = state.changed
+      ? state.collection
+      : { ...props.collection };
     return { collection };
   }
 
   onFieldChange({ target }) {
     const { collection } = this.state;
-    collection[target.id] = target.value;
+    collection[target.id] = target.value !== '' ? target.value : null;
     this.setState({ collection, changed: true });
   }
 
@@ -153,16 +155,19 @@ export class CollectionEditDialog extends Component {
         title={intl.formatMessage(messages.title)}
         enforceFocus={false}
       >
-        <div className="bp3-dialog-body">
-          <div className="bp3-form-group">
-            <label className="bp3-label">
-              <FormattedMessage id="collection.edit.info.label" defaultMessage="Label" />
+        <div className={Classes.DIALOG_BODY}>
+          <div className={Classes.FORM_GROUP}>
+            <label className={Classes.LABEL}>
+              <FormattedMessage
+                id="collection.edit.info.label"
+                defaultMessage="Label"
+              />
             </label>
-            <div className="bp3-form-content">
+            <div className={Classes.FORM_CONTENT}>
               <input
                 id="label"
                 type="text"
-                className="bp3-input bp3-fill"
+                className={c(Classes.INPUT, Classes.FILL)}
                 placeholder={intl.formatMessage(messages.placeholder_label)}
                 onChange={this.onFieldChange}
                 value={collection.label || ''}
@@ -170,13 +175,20 @@ export class CollectionEditDialog extends Component {
             </div>
           </div>
           {isAdmin && (
-            <div className="bp3-form-group">
-              <label className="bp3-label">
-                <FormattedMessage id="collection.edit.info.category" defaultMessage="Category" />
+            <div className={Classes.FORM_GROUP}>
+              <label className={Classes.LABEL}>
+                <FormattedMessage
+                  id="collection.edit.info.category"
+                  defaultMessage="Category"
+                />
               </label>
-              <div className="bp3-select bp3-fill">
-                <select id="category" onChange={this.onFieldChange} value={collection.category}>
-                  {Object.keys(categories).map(key => (
+              <div className={c(Classes.SELECT, Classes.FILL)}>
+                <select
+                  id="category"
+                  onChange={this.onFieldChange}
+                  value={collection.category}
+                >
+                  {Object.keys(categories).map((key) => (
                     <option key={key} value={key}>
                       {categories[key]}
                     </option>
@@ -185,14 +197,17 @@ export class CollectionEditDialog extends Component {
               </div>
             </div>
           )}
-          <div className="bp3-form-group">
-            <label className="bp3-label">
-              <FormattedMessage id="collection.edit.info.summary" defaultMessage="Summary" />
+          <div className={Classes.FORM_GROUP}>
+            <label className={Classes.LABEL}>
+              <FormattedMessage
+                id="collection.edit.info.summary"
+                defaultMessage="Summary"
+              />
             </label>
-            <div className="bp3-form-content">
+            <div className={Classes.FORM_CONTENT}>
               <textarea
                 id="summary"
-                className="bp3-input bp3-fill"
+                className={c(Classes.INPUT, Classes.FILL)}
                 placeholder={intl.formatMessage(messages.placeholder_summary)}
                 rows={5}
                 onChange={this.onFieldChange}
@@ -202,73 +217,100 @@ export class CollectionEditDialog extends Component {
           </div>
           {!isCasefile && (
             <>
-              <div className="bp3-form-group">
-                <label className="bp3-label">
-                  <FormattedMessage id="collection.edit.info.publisher" defaultMessage="Publisher" />
+              <div className={Classes.FORM_GROUP}>
+                <label className={Classes.LABEL}>
+                  <FormattedMessage
+                    id="collection.edit.info.publisher"
+                    defaultMessage="Publisher"
+                  />
                 </label>
-                <div className="bp3-fill">
+                <div className={Classes.FILL}>
                   <input
                     id="publisher"
                     type="text"
-                    className="bp3-input bp3-fill"
-                    placeholder={intl.formatMessage(messages.placeholder_publisher)}
+                    className={c(Classes.INPUT, Classes.FILL)}
+                    placeholder={intl.formatMessage(
+                      messages.placeholder_publisher
+                    )}
                     onChange={this.onFieldChange}
                     value={collection.publisher || ''}
                   />
                 </div>
               </div>
-              <div className="bp3-form-group">
-                <label className="bp3-label">
-                  <FormattedMessage id="collection.edit.info.publisher_url" defaultMessage="Publisher URL" />
+              <div className={Classes.FORM_GROUP}>
+                <label className={Classes.LABEL}>
+                  <FormattedMessage
+                    id="collection.edit.info.publisher_url"
+                    defaultMessage="Publisher URL"
+                  />
                 </label>
-                <div className="bp3-fill">
+                <div className={Classes.FILL}>
                   <input
                     id="publisher_url"
                     type="text"
-                    className="bp3-input bp3-fill"
-                    placeholder={intl.formatMessage(messages.placeholder_publisher_url)}
+                    className={c(Classes.INPUT, Classes.FILL)}
+                    placeholder={intl.formatMessage(
+                      messages.placeholder_publisher_url
+                    )}
                     onChange={this.onFieldChange}
                     value={collection.publisher_url || ''}
                   />
                 </div>
               </div>
-              <div className="bp3-form-group">
-                <label className="bp3-label">
-                  <FormattedMessage id="collection.edit.info.info_url" defaultMessage="Information URL" />
+              <div className={Classes.FORM_GROUP}>
+                <label className={Classes.LABEL}>
+                  <FormattedMessage
+                    id="collection.edit.info.info_url"
+                    defaultMessage="Information URL"
+                  />
                 </label>
-                <div className="bp3-fill">
+                <div className={Classes.FILL}>
                   <input
                     id="info_url"
                     type="text"
-                    className="bp3-input bp3-fill"
-                    placeholder={intl.formatMessage(messages.placeholder_info_url)}
+                    className={c(Classes.INPUT, Classes.FILL)}
+                    placeholder={intl.formatMessage(
+                      messages.placeholder_info_url
+                    )}
                     onChange={this.onFieldChange}
                     value={collection.info_url || ''}
                   />
                 </div>
               </div>
-              <div className="bp3-form-group">
-                <label className="bp3-label">
-                  <FormattedMessage id="collection.edit.info.data_url" defaultMessage="Data source URL" />
+              <div className={Classes.FORM_GROUP}>
+                <label className={Classes.LABEL}>
+                  <FormattedMessage
+                    id="collection.edit.info.data_url"
+                    defaultMessage="Data source URL"
+                  />
                 </label>
-                <div className="bp3-fill">
+                <div className={Classes.FILL}>
                   <input
                     id="data_url"
                     type="text"
-                    className="bp3-input bp3-fill"
-                    placeholder={intl.formatMessage(messages.placeholder_data_url)}
+                    className={c(Classes.INPUT, Classes.FILL)}
+                    placeholder={intl.formatMessage(
+                      messages.placeholder_data_url
+                    )}
                     onChange={this.onFieldChange}
                     value={collection.data_url || ''}
                   />
                 </div>
               </div>
-              <div className="bp3-form-group">
-                <label className="bp3-label">
-                  <FormattedMessage id="collection.edit.info.frequency" defaultMessage="Update frequency" />
+              <div className={Classes.FORM_GROUP}>
+                <label className={Classes.LABEL}>
+                  <FormattedMessage
+                    id="collection.edit.info.frequency"
+                    defaultMessage="Update frequency"
+                  />
                 </label>
-                <div className="bp3-select bp3-fill">
-                  <select id="frequency" onChange={this.onFieldChange} value={collection.frequency || ''}>
-                    {Object.keys(frequencies).map(key => (
+                <div className={c(Classes.SELECT, Classes.FILL)}>
+                  <select
+                    id="frequency"
+                    onChange={this.onFieldChange}
+                    value={collection.frequency || ''}
+                  >
+                    {Object.keys(frequencies).map((key) => (
                       <option key={key} value={key || ''}>
                         {frequencies[key]}
                       </option>
@@ -279,11 +321,14 @@ export class CollectionEditDialog extends Component {
             </>
           )}
           {isAdmin && (
-            <div className="bp3-form-group">
-              <label className="bp3-label">
-                <FormattedMessage id="collection.edit.info.creator" defaultMessage="Manager" />
+            <div className={Classes.FORM_GROUP}>
+              <label className={Classes.LABEL}>
+                <FormattedMessage
+                  id="collection.edit.info.creator"
+                  defaultMessage="Manager"
+                />
               </label>
-              <div className="bp3-form-content">
+              <div className={Classes.FORM_CONTENT}>
                 <Role.Select
                   role={collection.creator}
                   onSelect={this.onSelectCreator}
@@ -291,9 +336,12 @@ export class CollectionEditDialog extends Component {
               </div>
             </div>
           )}
-          <div className="bp3-form-group">
-            <label className="bp3-label">
-              <FormattedMessage id="collection.edit.info.countries" defaultMessage="Countries" />
+          <div className={Classes.FORM_GROUP}>
+            <label className={Classes.LABEL}>
+              <FormattedMessage
+                id="collection.edit.info.countries"
+                defaultMessage="Countries"
+              />
             </label>
             <Country.MultiSelect
               onSubmit={this.onSelectCountries}
@@ -304,9 +352,12 @@ export class CollectionEditDialog extends Component {
               }}
             />
           </div>
-          <div className="bp3-form-group">
-            <label className="bp3-label">
-              <FormattedMessage id="collection.edit.info.languages" defaultMessage="Languages" />
+          <div className={Classes.FORM_GROUP}>
+            <label className={Classes.LABEL}>
+              <FormattedMessage
+                id="collection.edit.info.languages"
+                defaultMessage="Languages"
+              />
             </label>
             <Language.MultiSelect
               onSubmit={this.onSelectLanguages}
@@ -316,7 +367,7 @@ export class CollectionEditDialog extends Component {
                 placeholder: intl.formatMessage(messages.placeholder_language),
               }}
             />
-            <div className="bp3-form-helper-text">
+            <div className={Classes.FORM_HELPER_TEXT}>
               <FormattedMessage
                 id="case.languages.helper"
                 defaultMessage="Used for optical text recognition in non-Latin alphabets."
@@ -325,21 +376,24 @@ export class CollectionEditDialog extends Component {
           </div>
           {!isCasefile && (
             <>
-              <div className="bp3-form-group">
-                <label className="bp3-label">
-                  <FormattedMessage id="collection.edit.info.foreign_id" defaultMessage="Foreign ID" />
+              <div className={Classes.FORM_GROUP}>
+                <label className={Classes.LABEL}>
+                  <FormattedMessage
+                    id="collection.edit.info.foreign_id"
+                    defaultMessage="Foreign ID"
+                  />
                 </label>
-                <div className="bp3-form-content">
+                <div className={Classes.FORM_CONTENT}>
                   <input
-                    className="bp3-input bp3-fill"
+                    className={c(Classes.INPUT, Classes.FILL)}
                     type="text"
                     disabled
                     value={collection.foreign_id || ''}
                   />
                 </div>
               </div>
-              <div className="bp3-form-group">
-                <div className="bp3-fill">
+              <div className={Classes.FORM_GROUP}>
+                <div className={Classes.FILL}>
                   <Checkbox
                     checked={collection.restricted}
                     label={intl.formatMessage(messages.check_restricted)}
@@ -350,8 +404,8 @@ export class CollectionEditDialog extends Component {
             </>
           )}
         </div>
-        <div className="bp3-dialog-footer">
-          <div className="bp3-dialog-footer-actions">
+        <div className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
               onClick={this.onSubmit}
               intent={Intent.PRIMARY}
@@ -365,12 +419,12 @@ export class CollectionEditDialog extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   metadata: selectMetadata(state),
   isAdmin: selectAdmin(state),
 });
 
 export default compose(
   connect(mapStateToProps, { updateCollection }),
-  injectIntl,
+  injectIntl
 )(CollectionEditDialog);

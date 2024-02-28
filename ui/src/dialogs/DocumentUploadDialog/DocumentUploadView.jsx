@@ -1,7 +1,8 @@
 import React, { PureComponent } from 'react';
-import { Button, Checkbox, Icon, Intent } from '@blueprintjs/core';
+import { Button, Checkbox, Classes, Icon, Intent } from '@blueprintjs/core';
 import { defineMessages, injectIntl } from 'react-intl';
-import { FileSize } from '@alephdata/react-ftm';
+import { FileSize } from 'react-ftm';
+import c from 'classnames';
 
 import convertPathsToTree from 'util/convertPathsToTree';
 
@@ -14,8 +15,8 @@ const messages = defineMessages({
   },
   summary: {
     id: 'document.upload.summary',
-    defaultMessage: '{numberOfFiles, number} files, {totalSize}'
-  }
+    defaultMessage: '{numberOfFiles, number} files, {totalSize}',
+  },
 });
 
 export class DocumentUploadView extends PureComponent {
@@ -39,7 +40,7 @@ export class DocumentUploadView extends PureComponent {
   toggleFile(file) {
     this.setState(({ filesToUpload }) => ({
       filesToUpload: filesToUpload.includes(file)
-        ? filesToUpload.filter(f => f !== file)
+        ? filesToUpload.filter((f) => f !== file)
         : [...filesToUpload, ...[file]],
     }));
   }
@@ -52,7 +53,9 @@ export class DocumentUploadView extends PureComponent {
 
       return (
         <div className="DocumentUploadView__folder" key={key}>
-          <h6 className="DocumentUploadView__folder__label bp3-heading">
+          <h6
+            className={c('DocumentUploadView__folder__label', Classes.HEADING)}
+          >
             <Icon icon="folder-open" className="left-icon" />
             {key}
           </h6>
@@ -80,18 +83,23 @@ export class DocumentUploadView extends PureComponent {
     const { filesToUpload } = this.state;
 
     const fileTree = convertPathsToTree(files);
-    const totalFileSize = files.reduce((totalSize, file) => totalSize + file.size, 0);
+    const totalFileSize = files.reduce(
+      (totalSize, file) => totalSize + file.size,
+      0
+    );
 
     return (
       <div className="DocumentUploadView">
         <div className="DocumentUploadView__content">
           {this.renderFolder(fileTree)}
         </div>
-        <p>{intl.formatMessage(messages.summary, {
-          numberOfFiles: filesToUpload.length,
-          totalSize: <FileSize value={totalFileSize} />
-        })}</p>
-        <div className="bp3-dialog-footer-actions">
+        <p>
+          {intl.formatMessage(messages.summary, {
+            numberOfFiles: filesToUpload.length,
+            totalSize: <FileSize value={totalFileSize} />,
+          })}
+        </p>
+        <div className={Classes.DIALOG_FOOTER_ACTIONS}>
           <Button
             type="submit"
             intent={Intent.PRIMARY}

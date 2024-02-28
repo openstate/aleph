@@ -1,46 +1,53 @@
 import _ from 'lodash';
-import { isEntityRtl } from '@alephdata/react-ftm';
+import { isEntityRtl } from 'react-ftm';
 import { Model } from '@alephdata/followthemoney';
 
 import { loadState } from 'reducers/util';
 import { entityReferencesQuery, profileReferencesQuery } from 'queries';
 import { getRecentlyViewedItem } from 'app/storage';
 
-function selectTimestamp(state) {
-  return state.mutation;
+function selectTimestamp(state, key = 'global') {
+  return state.mutation[key] || state.mutation.global;
 }
 
-function selectObject(state, objects, id) {
+function selectObject(state, objects, id, mutationKey) {
   if (!id || !_.has(objects, id)) {
     return loadState();
   }
   const obj = objects[id];
   const isLoadable = !obj.isError && !obj.isPending;
   if (isLoadable) {
-    const outdated = obj.loadedAt && obj.loadedAt < selectTimestamp(state);
+    const globalMutationTimestamp = selectTimestamp(state);
+    const mutationTimestamp = selectTimestamp(state, mutationKey);
+
+    const outdated =
+      obj.loadedAt &&
+      (obj.loadedAt < globalMutationTimestamp ||
+        obj.loadedAt < mutationTimestamp);
+
     obj.shouldLoad = obj.shouldLoad || outdated;
   }
   obj.shouldLoadDeep = obj.shouldLoad || (isLoadable && obj.shallow !== false);
   return obj;
 }
 
-function selectResult(state, query, expand) {
+function selectResult(state, query, expand, mutationKey) {
   if (!query || !query.path) {
     return {
       ...loadState(),
       results: [],
       shouldLoad: false,
       shouldLoadDeep: false,
-      isPending: true
+      isPending: true,
     };
   }
   const result = {
     results: [],
-    ...selectObject(state, state.results, query.toKey()),
+    ...selectObject(state, state.results, query.toKey(), mutationKey),
   };
   if (expand) {
     result.results = result.results
-      .map(id => expand(state, id))
+      .map((id) => expand(state, id))
       .filter((r) => r.id !== undefined);
   }
   return result;
@@ -75,6 +82,58 @@ export function selectMetadata(state) {
   return metadata;
 }
 
+export function selectFeatureFlags(state) {
+  return selectMetadata(state).feature_flags;
+}
+
+export function selectExperimentalBookmarksFeatureEnabled(state) {
+  const loggedIn = !!selectSession(state).loggedIn;
+  const featureFlag = !!selectFeatureFlags(state).bookmarks;
+
+  return loggedIn && featureFlag;
+}
+
+export function selectFeedbackUrls(state) {
+  return selectMetadata(state)?.feedback_urls;
+}
+
+export function selectFeedbackUrl(state, key) {
+  return selectFeedbackUrls(state)?.[key];
+}
+
+export function selectDismissedHints(state, id) {
+  return state.config?.dismissedHints || [];
+}
+
+export function selectMessages(state) {
+  return selectObject(state, state, 'messages');
+}
+
+export function selectPinnedMessage(state) {
+  const metadata = selectMetadata(state);
+  const { messages, dismissed } = selectMessages(state);
+
+  if (metadata?.app?.banner) {
+    return { safeHtmlBody: metadata.app.banner };
+  }
+
+  if (!messages) {
+    return null;
+  }
+
+  const activeMessages = messages
+    .filter(({ id }) => !dismissed.includes(id))
+    .filter(({ displayUntil }) => {
+      return !displayUntil || Date.now() <= new Date(displayUntil);
+    });
+
+  if (activeMessages.length <= 0) {
+    return null;
+  }
+
+  return activeMessages[0];
+}
+
 export function selectPages(state) {
   return selectMetadata(state).pages;
 }
@@ -86,7 +145,7 @@ export function selectPage(state, name) {
 export function selectModel(state) {
   const metadata = selectMetadata(state);
   if (metadata.model && !metadata.ftmModel) {
-    metadata.ftmModel = new Model(metadata.model)
+    metadata.ftmModel = new Model(metadata.model);
   }
   return metadata.ftmModel;
 }
@@ -158,7 +217,7 @@ export function selectCollection(state, collectionId) {
 }
 
 export function selectEntity(state, entityId) {
-  const entity = selectObject(state, state.entities, entityId)
+  const entity = selectObject(state, state.entities, entityId);
   const lastViewed = getRecentlyViewedItem(entityId);
 
   if (!entity.selectorCache) {
@@ -187,13 +246,14 @@ export function selectEntity(state, entityId) {
   result.profileId = entity.profile_id;
   result.lastViewed = lastViewed;
   result.writeable = entity.writeable;
+  result.bookmarked = entity.bookmarked;
 
   return result;
 }
 
 export function selectEntityDirectionality(state, entity) {
   const isRtl = isEntityRtl(entity, selectLocale(state), selectModel(state));
-  return isRtl ? "rtl" : "ltr";
+  return isRtl ? 'rtl' : 'ltr';
 }
 
 export function selectEntitySet(state, entitySetId) {
@@ -248,10 +308,15 @@ function buildReferences(references, schema) {
     const reverse = schema.getProperty(ref.property);
     const property = reverse.getReverse();
     return {
-      schema: property.schema, property, reverse, count: ref.count,
+      schema: property.schema,
+      property,
+      reverse,
+      count: ref.count,
     };
   });
-  references.results = references.results.filter((ref) => (ref.reverse.stub && !ref.reverse.hidden));
+  references.results = references.results.filter(
+    (ref) => ref.reverse.stub && !ref.reverse.hidden
+  );
   references.total = references.results.length;
   return references;
 }
@@ -269,7 +334,7 @@ export function selectEntityReferences(state, entityId) {
 
 export function selectEntityReference(state, entityId, qname) {
   const references = selectEntityReferences(state, entityId);
-  return references.results.find(ref => ref.property.qname === qname);
+  return references.results.find((ref) => ref.property.qname === qname);
 }
 
 export function selectProfileExpandResult(state, query) {
@@ -285,12 +350,16 @@ export function selectProfileReferences(state, profileId) {
 
 export function selectProfileReference(state, profileId, qname) {
   const references = selectProfileReferences(state, profileId);
-  return references.results.find(ref => ref.property.qname === qname);
+  return references.results.find((ref) => ref.property.qname === qname);
 }
 
 export function selectNotificationsResult(state, query) {
   const model = selectModel(state);
-  const result = selectResult(state, query, (stateInner, id) => stateInner.notifications[id]);
+  const result = selectResult(
+    state,
+    query,
+    (stateInner, id) => stateInner.notifications[id]
+  );
   result.results.forEach((notif) => {
     Object.entries(notif.event.params).forEach(([field, type]) => {
       if (type === 'entity' && notif.params[field]) {
@@ -333,7 +402,10 @@ export function selectEntityView(state, entityId, mode, isPreview) {
     return mode;
   }
   const { schema } = selectEntity(state, entityId);
-  if (schema && schema.isAny(['Email', 'HyperText', 'Image', 'Pages', 'Table'])) {
+  if (
+    schema &&
+    schema.isAny(['Email', 'HyperText', 'Image', 'Pages', 'Table'])
+  ) {
     return 'view';
   }
   if (schema && schema.isA('Folder')) {
@@ -399,4 +471,33 @@ export function selectQueryLogsLimited(state, limit = 9) {
     ...queryLogs,
     results,
   };
+}
+
+export function selectBookmarksResult(state, query) {
+  const model = selectModel(state);
+  const result = selectResult(
+    state,
+    query,
+    (stateInner, id) => stateInner.bookmarks[id],
+    'bookmarks'
+  );
+
+  result.results = result.results.map((bookmark) => ({
+    ...bookmark,
+    entity: model.getEntity(bookmark.entity),
+  }));
+
+  return result;
+}
+
+// TODO: Remove after deadline
+// See https://github.com/alephdata/aleph/issues/2864
+export function selectLocalBookmarks(state) {
+  return (
+    state?.localBookmarks?.sort((a, b) => b.bookmarkedAt - a.bookmarkedAt) || []
+  );
+}
+
+export function selectConfigValue(state, name) {
+  return state?.config?.[name];
 }

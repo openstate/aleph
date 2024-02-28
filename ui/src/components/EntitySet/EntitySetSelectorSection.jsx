@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
-import { Button, ButtonGroup, Collapse, InputGroup } from '@blueprintjs/core';
+import {
+  Button,
+  ButtonGroup,
+  Classes,
+  Collapse,
+  InputGroup,
+} from '@blueprintjs/core';
 import { Tooltip2 as Tooltip } from '@blueprintjs/popover2';
 import { defineMessages, injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 
-import withRouter from 'app/withRouter'
+import withRouter from 'app/withRouter';
 import { queryEntitySets } from 'actions';
 import { collectionEntitySetsQuery } from 'queries';
 import { selectEntitySetsResult } from 'selectors';
@@ -53,14 +59,13 @@ const messages = defineMessages({
   },
 });
 
-
 class EntitySetSelectorSection extends Component {
   constructor(props) {
     super(props);
     this.state = {
       processing: false,
       createIsOpen: false,
-      expanded: true
+      expanded: true,
     };
 
     this.onChangeLabel = this.onChangeLabel.bind(this);
@@ -75,15 +80,15 @@ class EntitySetSelectorSection extends Component {
 
   toggleCreate() {
     this.setState(({ createIsOpen }) => ({
-      createIsOpen: !createIsOpen
+      createIsOpen: !createIsOpen,
     }));
   }
 
   toggleExpand() {
     this.setState(({ expanded }) => ({
       expanded: !expanded,
-      createIsOpen: false
-    }))
+      createIsOpen: false,
+    }));
   }
 
   onCreate = (e) => {
@@ -93,7 +98,7 @@ class EntitySetSelectorSection extends Component {
     e.stopPropagation();
 
     onCreate(type, label);
-  }
+  };
 
   render() {
     const { query, intl, onSelect, result, type } = this.props;
@@ -112,17 +117,12 @@ class EntitySetSelectorSection extends Component {
             rightIcon={<Count count={result.total} />}
             className="EntitySetSelectorSection__title"
           >
-            <h5 className="bp3-heading">
+            <h5 className={Classes.HEADING}>
               {intl.formatMessage(messages[type])}
             </h5>
           </Button>
-          <Tooltip
-            content={intl.formatMessage(messages[`${type}_create`])}
-          >
-            <Button
-              icon="add"
-              onClick={this.toggleCreate}
-            />
+          <Tooltip content={intl.formatMessage(messages[`${type}_create`])}>
+            <Button icon="add" onClick={this.toggleCreate} />
           </Tooltip>
         </ButtonGroup>
         <Collapse isOpen={createIsOpen}>
@@ -174,5 +174,5 @@ const mapStateToProps = (state, ownProps) => {
 export default compose(
   withRouter,
   injectIntl,
-  connect(mapStateToProps, { queryEntitySets }),
+  connect(mapStateToProps, { queryEntitySets })
 )(EntitySetSelectorSection);

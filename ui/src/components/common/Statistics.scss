@@ -1,10 +1,10 @@
 @import 'app/variables.scss';
-@import "app/mixins.scss";
+@import 'app/mixins.scss';
 
 .Statistics {
   display: inline-block;
 
-  &.bp3-callout.dark {
+  &.#{$bp-ns}-callout.dark {
     background-color: white;
   }
 
@@ -28,7 +28,7 @@
     margin: 0;
   }
 
-  &__more-toggle.bp3-button {
+  &__more-toggle.#{$bp-ns}-button {
     padding: 0;
     margin-bottom: 0 !important;
   }
@@ -37,11 +37,12 @@
     margin: 7px 0;
     display: flex;
 
-    a, .bp3-button {
+    a,
+    .#{$bp-ns}-button {
       color: $aleph-content-background !important;
       width: 100%;
       @include rtl(text-align, left, right);
-      transition: background-color .1s ease-out;
+      transition: background-color 0.1s ease-out;
 
       &:hover {
         text-decoration: none;
@@ -57,7 +58,7 @@
       }
     }
 
-    .bp3-button {
+    .#{$bp-ns}-button {
       box-shadow: none !important;
       background: none !important;
       border-radius: 0;
@@ -66,7 +67,7 @@
       margin: 10px 0;
     }
 
-    .bp3-button-text {
+    .#{$bp-ns}-button-text {
       font-weight: 600;
     }
 

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Dialog, Spinner } from '@blueprintjs/core';
+import c from 'classnames';
+import { Classes, Dialog, Spinner } from '@blueprintjs/core';
 
 import './FormDialog.scss';
 
@@ -17,7 +18,7 @@ const FormDialog = ({ processing, children, onSubmit, ...rest }) => {
           {processing && <div className="FormDialog__overlay" />}
           {children}
           {processing && (
-            <Spinner className="FormDialog__spinner bp3-large" />
+            <Spinner className={c('FormDialog__spinner', Classes.LARGE)} />
           )}
         </form>
       </div>

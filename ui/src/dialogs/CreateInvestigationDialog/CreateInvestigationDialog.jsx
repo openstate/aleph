@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
-import { Button, Intent } from '@blueprintjs/core';
+import { Button, Classes, Intent } from '@blueprintjs/core';
 import { defineMessages, FormattedMessage, injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
+import c from 'classnames';
 
-import withRouter from 'app/withRouter'
-import {
-  createCollection,
-  updateCollectionPermissions,
-} from 'actions';
+import withRouter from 'app/withRouter';
+import { createCollection, updateCollectionPermissions } from 'actions';
 import { showWarningToast } from 'app/toast';
 import { Language, Role } from 'components/common';
 import FormDialog from 'dialogs/common/FormDialog';
@@ -50,7 +48,7 @@ class CreateInvestigationDialog extends Component {
         label: '',
         summary: '',
         casefile: true,
-        languages: []
+        languages: [],
       },
       permissions: [],
       blocking: false,
@@ -72,7 +70,9 @@ class CreateInvestigationDialog extends Component {
 
   onDeleteRole(role) {
     const { permissions } = this.state;
-    const newPermissions = permissions.filter(permission => permission.role.id !== role.role.id);
+    const newPermissions = permissions.filter(
+      (permission) => permission.role.id !== role.role.id
+    );
     this.setState({ permissions: newPermissions });
   }
 
@@ -82,9 +82,14 @@ class CreateInvestigationDialog extends Component {
     this.setState({ collection });
   }
 
-
   async onSubmit() {
-    const { navigate, createCollection, toggleDialog, updateCollectionPermissions, preventRedirect } = this.props;
+    const {
+      navigate,
+      createCollection,
+      toggleDialog,
+      updateCollectionPermissions,
+      preventRedirect,
+    } = this.props;
     const { collection, permissions } = this.state;
     if (!this.checkValid()) return;
     this.setState({ blocking: true });
@@ -124,7 +129,7 @@ class CreateInvestigationDialog extends Component {
   render() {
     const { intl, isOpen, toggleDialog } = this.props;
     const { collection, permissions, blocking } = this.state;
-    const exclude = permissions.map(perm => parseInt(perm.role.id, 10));
+    const exclude = permissions.map((perm) => parseInt(perm.role.id, 10));
     const disabled = blocking || !this.checkValid();
 
     return (
@@ -138,15 +143,15 @@ class CreateInvestigationDialog extends Component {
         enforceFocus={false}
         autoFocus={false}
       >
-        <div className="bp3-dialog-body">
-          <div className="bp3-form-group">
-            <label className="bp3-label" htmlFor="label">
+        <div className={Classes.DIALOG_BODY}>
+          <div className={Classes.FORM_GROUP}>
+            <label className={Classes.LABEL} htmlFor="label">
               <FormattedMessage id="case.choose.name" defaultMessage="Title" />
-              <div className="bp3-input-group bp3-fill">
+              <div className={c(Classes.INPUT_GROUP, Classes.FILL)}>
                 <input
                   id="label"
                   type="text"
-                  className="bp3-input"
+                  className={Classes.INPUT}
                   autoComplete="off"
                   placeholder={intl.formatMessage(messages.label_placeholder)}
                   onChange={this.onChangeLabel}
@@ -155,16 +160,16 @@ class CreateInvestigationDialog extends Component {
               </div>
             </label>
           </div>
-          <div className="bp3-form-group">
-            <label className="bp3-label" htmlFor="summary">
+          <div className={Classes.FORM_GROUP}>
+            <label className={Classes.LABEL} htmlFor="summary">
               <FormattedMessage
                 id="case.choose.summary"
                 defaultMessage="Summary"
               />
-              <div className="bp3-input-group bp3-fill">
+              <div className={c(Classes.INPUT_GROUP, Classes.FILL)}>
                 <textarea
                   id="summary"
-                  className="bp3-input"
+                  className={Classes.INPUT}
                   placeholder={intl.formatMessage(messages.summary_placeholder)}
                   onChange={this.onChangeSummary}
                   value={collection.summary}
@@ -172,9 +177,12 @@ class CreateInvestigationDialog extends Component {
               </div>
             </label>
           </div>
-          <div className="bp3-form-group">
-            <label className="bp3-label">
-              <FormattedMessage id="case.chose.languages" defaultMessage="Languages" />
+          <div className={Classes.FORM_GROUP}>
+            <label className={Classes.LABEL}>
+              <FormattedMessage
+                id="case.chose.languages"
+                defaultMessage="Languages"
+              />
             </label>
             <Language.MultiSelect
               onSubmit={this.onSelectLanguages}
@@ -184,15 +192,15 @@ class CreateInvestigationDialog extends Component {
                 placeholder: intl.formatMessage(messages.language_placeholder),
               }}
             />
-            <div className="bp3-form-helper-text">
+            <div className={Classes.FORM_HELPER_TEXT}>
               <FormattedMessage
                 id="case.languages.helper"
                 defaultMessage="Used for optical text recognition in non-Latin alphabets."
               />
             </div>
           </div>
-          <div className="bp3-form-group">
-            <label className="bp3-label">
+          <div className={Classes.FORM_GROUP}>
+            <label className={Classes.LABEL}>
               <FormattedMessage
                 id="case.share.with"
                 defaultMessage="Share with"
@@ -203,14 +211,14 @@ class CreateInvestigationDialog extends Component {
           {permissions.length !== 0 && (
             <table className="settings-table">
               <tbody>
-                {permissions.map(permission => (
+                {permissions.map((permission) => (
                   <tr key={permission.role.id + 1}>
                     <td>
                       <Role.Label role={permission.role} icon={false} long />
                     </td>
                     <td>
                       <Button
-                        onClick={e => this.onDeleteRole(permission, e)}
+                        onClick={(e) => this.onDeleteRole(permission, e)}
                         small
                         minimal
                         icon="remove"
@@ -222,8 +230,8 @@ class CreateInvestigationDialog extends Component {
             </table>
           )}
         </div>
-        <div className="bp3-dialog-footer">
-          <div className="bp3-dialog-footer-actions">
+        <div className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
               onClick={this.onSubmit}
               intent={Intent.PRIMARY}
@@ -239,4 +247,6 @@ class CreateInvestigationDialog extends Component {
 
 CreateInvestigationDialog = injectIntl(CreateInvestigationDialog);
 CreateInvestigationDialog = withRouter(CreateInvestigationDialog);
-export default connect(null, { createCollection, updateCollectionPermissions })(CreateInvestigationDialog);
+export default connect(null, { createCollection, updateCollectionPermissions })(
+  CreateInvestigationDialog
+);

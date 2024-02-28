@@ -1,6 +1,7 @@
 import logging
 from pprint import pprint, pformat  # noqa
 from flask import request
+from flask_babel import gettext
 from pantomime.types import PDF, CSV
 from banal import ensure_list
 from followthemoney import model
@@ -88,6 +89,25 @@ class Serializer(object):
         data = result.to_dict(serializer=cls)
         if extra is not None:
             data.update(extra)
+        # Sometimes part of the result might be missing because of some
+        # inconsistency (eg: a failed re-indexing). We try to spot those
+        # inconsistencies.
+        total = data.get("total", 0)
+        limit = data.get("limit", 0)
+        offset = data.get("offset", 0)
+        if total > 0 and not data.get("results"):
+            if not (limit == 0 or offset >= total):
+                log.exception(f"Expected more results in the response: {data}")
+                data = {
+                    "status": "error",
+                    "message": gettext(
+                        "We found %(total)d results, but could not load them due "
+                        "to a technical problem. Please check back later and if "
+                        "the problem persists contact an Aleph administrator",
+                        total=total,
+                    ),
+                }
+                return jsonify(data, status=500)
         return jsonify(data, **kwargs)
 
 
@@ -379,4 +399,23 @@ class MappingSerializer(Serializer):
         entityset_id = obj.pop("entityset_id", None)
         obj["entityset"] = self.resolve(EntitySet, entityset_id, EntitySetSerializer)
         obj["table"] = self.resolve(Entity, obj.get("table_id", None), EntitySerializer)
+        return obj
+
+
+class BookmarkSerializer(Serializer):
+    def collect(self, obj):
+        self.queue(Entity, obj.get("entity_id"))
+
+    def _serialize(self, obj):
+        obj["entity"] = self.resolve(Entity, obj.get("entity_id"), EntitySerializer)
+
+        # Entity could not be resolved, for example because it has been
+        # removed or permissions have changed.
+        if not obj["entity"]:
+            return None
+
+        obj["id"] = obj["entity"]["id"]
+        obj.pop("entity_id", None)
+        obj.pop("collection_id", None)
+        obj.pop("writeable", None)
         return obj

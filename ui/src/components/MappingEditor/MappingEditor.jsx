@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { defineMessages, FormattedMessage, injectIntl } from 'react-intl';
-import { Button, Intent } from '@blueprintjs/core';
+import { Button, Classes, Intent } from '@blueprintjs/core';
 import { Tooltip2 as Tooltip } from '@blueprintjs/popover2';
+import c from 'classnames';
 
 import { selectModel } from 'selectors';
 import { Collection, EntitySet, Schema } from 'components/common';
@@ -16,7 +17,6 @@ import MappingSplitSection from 'components/MappingEditor/MappingSplitSection';
 import MappingVerify from 'components/MappingEditor/MappingVerify';
 
 import './MappingEditor.scss';
-
 
 const messages = defineMessages({
   section1Title: {
@@ -46,7 +46,7 @@ const messages = defineMessages({
   entityset_remove: {
     id: 'mapping.entityset.remove',
     defaultMessage: 'Remove',
-  }
+  },
 });
 
 export class MappingEditor extends Component {
@@ -82,7 +82,9 @@ export class MappingEditor extends Component {
   }
 
   onMappingAdd(schema) {
-    this.setState(({ mappings }) => ({ mappings: mappings.addMapping(schema) }));
+    this.setState(({ mappings }) => ({
+      mappings: mappings.addMapping(schema),
+    }));
   }
 
   onMappingRemove(id) {
@@ -90,7 +92,9 @@ export class MappingEditor extends Component {
   }
 
   onMappingIdChange(oldId, newId) {
-    this.setState(({ mappings }) => ({ mappings: mappings.changeId(oldId, newId) }));
+    this.setState(({ mappings }) => ({
+      mappings: mappings.changeId(oldId, newId),
+    }));
   }
 
   onKeyAdd(id, key) {
@@ -98,15 +102,21 @@ export class MappingEditor extends Component {
   }
 
   onKeyRemove(id, key) {
-    this.setState(({ mappings }) => ({ mappings: mappings.removeKey(id, key) }));
+    this.setState(({ mappings }) => ({
+      mappings: mappings.removeKey(id, key),
+    }));
   }
 
   onPropertyAdd(id, propName, value) {
-    this.setState(({ mappings }) => ({ mappings: mappings.addProperty(id, propName, value) }));
+    this.setState(({ mappings }) => ({
+      mappings: mappings.addProperty(id, propName, value),
+    }));
   }
 
   onPropertyRemove(id, propName) {
-    this.setState(({ mappings }) => ({ mappings: mappings.removeProperty(id, propName) }));
+    this.setState(({ mappings }) => ({
+      mappings: mappings.removeProperty(id, propName),
+    }));
   }
 
   onEntitySetAdd(entitySet) {
@@ -118,9 +128,9 @@ export class MappingEditor extends Component {
   }
 
   toggleEntitySetSelector() {
-    this.setState(({ entitySetSelectorIsOpen }) => (
-      { entitySetSelectorIsOpen: !entitySetSelectorIsOpen }
-    ));
+    this.setState(({ entitySetSelectorIsOpen }) => ({
+      entitySetSelectorIsOpen: !entitySetSelectorIsOpen,
+    }));
   }
 
   loadFromMappingData() {
@@ -133,7 +143,8 @@ export class MappingEditor extends Component {
   }
 
   render() {
-    const { document, existingMappingMetadata, csvData, csvHeader, intl } = this.props;
+    const { document, existingMappingMetadata, csvData, csvHeader, intl } =
+      this.props;
     const { entitySet, mappings } = this.state;
 
     const showPropertySections = mappings.getMappingsCount() > 0;
@@ -143,15 +154,19 @@ export class MappingEditor extends Component {
         <div className="MappingEditor">
           <div className="MappingEditor__sections">
             <div className="MappingEditor__section">
-              <h5 className="bp3-heading MappingEditor__section__title">
+              <h5
+                className={c(Classes.HEADING, 'MappingEditor__section__title')}
+              >
                 {intl.formatMessage(messages.section1Title)}
               </h5>
               <MappingSplitSection
                 mappings={mappings}
-                sectionContentsRenderer={((subitems, type) => (
+                sectionContentsRenderer={(subitems, type) => (
                   <>
                     <Schema.Select
-                      optionsFilter={schema => (type === 'thing' ? schema.isThing() : !schema.isThing())}
+                      optionsFilter={(schema) =>
+                        type === 'thing' ? schema.isThing() : !schema.isThing()
+                      }
                       onSelect={this.onMappingAdd}
                     >
                       <Button
@@ -170,13 +185,18 @@ export class MappingEditor extends Component {
                       onMappingRemove={this.onMappingRemove}
                     />
                   </>
-                ))}
+                )}
               />
             </div>
             {showPropertySections && (
               <>
                 <div className="MappingEditor__section">
-                  <h5 className="bp3-heading MappingEditor__section__title">
+                  <h5
+                    className={c(
+                      Classes.HEADING,
+                      'MappingEditor__section__title'
+                    )}
+                  >
                     {intl.formatMessage(messages.section2Title)}
                   </h5>
                   <MappingPropertyAssign
@@ -189,12 +209,17 @@ export class MappingEditor extends Component {
                 </div>
 
                 <div className="MappingEditor__section">
-                  <h5 className="bp3-heading MappingEditor__section__title">
+                  <h5
+                    className={c(
+                      Classes.HEADING,
+                      'MappingEditor__section__title'
+                    )}
+                  >
                     {intl.formatMessage(messages.section3Title)}
                   </h5>
                   <MappingSplitSection
                     mappings={mappings}
-                    sectionContentsRenderer={(subitems => (
+                    sectionContentsRenderer={(subitems) => (
                       <MappingVerify
                         items={subitems}
                         fullMappingsList={mappings}
@@ -202,18 +227,30 @@ export class MappingEditor extends Component {
                         onPropertyAdd={this.onPropertyAdd}
                         onMappingIdChange={this.onMappingIdChange}
                       />
-                    ))}
+                    )}
                   />
                 </div>
                 <div className="MappingEditor__section">
-                  <h5 className="bp3-heading MappingEditor__section__title">
+                  <h5
+                    className={c(
+                      Classes.HEADING,
+                      'MappingEditor__section__title'
+                    )}
+                  >
                     {intl.formatMessage(messages.section4Title)}
                   </h5>
                   <p className="MappingEditor__section__description">
                     <FormattedMessage
                       id="mapping.section4.description"
                       defaultMessage="Generated entities will be added to {collection} by default. If you would like to additionally add them to a list or diagram within the investigation, please click below and select from the available options."
-                      values={{ collection: <Collection.Label collection={document.collection} icon={false} /> }}
+                      values={{
+                        collection: (
+                          <Collection.Label
+                            collection={document.collection}
+                            icon={false}
+                          />
+                        ),
+                      }}
                     />
                   </p>
                   {entitySet && (
@@ -278,7 +315,4 @@ const mapStateToProps = (state) => ({
   model: selectModel(state),
 });
 
-export default compose(
-  connect(mapStateToProps),
-  injectIntl,
-)(MappingEditor);
+export default compose(connect(mapStateToProps), injectIntl)(MappingEditor);

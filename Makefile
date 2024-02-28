@@ -1,19 +1,43 @@
 COMPOSE=docker-compose -f docker-compose.dev.yml
+COMPOSE_E2E=docker-compose -f docker-compose.dev.yml -f docker-compose.e2e.yml
 APPDOCKER=$(COMPOSE) run --rm app
+UIDOCKER=$(COMPOSE) run --no-deps --rm ui
 ALEPH_TAG=latest
 
 all: build upgrade web
 
 services:
 	$(COMPOSE) up -d --remove-orphans \
-		postgres elasticsearch ingest-file \
-		convert-document
+		postgres elasticsearch ingest-file
 
 shell: services
 	$(APPDOCKER) /bin/bash
 
+# To run a single test file:
+# make test file=aleph/tests/test_manage.py
 test:
-	$(APPDOCKER) contrib/test.sh
+	$(APPDOCKER) contrib/test.sh $(file)
+
+test-ui:
+	$(UIDOCKER) npm run test
+
+lint:
+	ruff check .
+
+lint-ui:
+	$(UIDOCKER) npm run lint
+
+format:
+	black aleph/
+
+format-ui:
+	$(UIDOCKER) npm run format
+
+format-check:
+	black --check aleph/
+
+format-check-ui:
+	$(UIDOCKER) npm run format:check
 
 upgrade: build
 	$(COMPOSE) up -d postgres elasticsearch
@@ -27,7 +51,7 @@ web: services
 	$(COMPOSE) up api ui
 
 worker: services
-	$(COMPOSE) run -p 127.0.0.1:5679:5679 --rm app python3 -m debugpy --listen 0.0.0.0:5679 /usr/local/bin/aleph worker
+	$(COMPOSE) run -p 127.0.0.1:5679:5679 --rm app python3 -m debugpy --listen 0.0.0.0:5679 -c "from aleph.manage import cli; cli()" worker
 
 tail:
 	$(COMPOSE) logs -f
@@ -48,15 +72,20 @@ build:
 	$(COMPOSE) build
 
 build-ui:
-	docker build -t alephdata/aleph-ui-production:$(ALEPH_TAG) -f ui/Dockerfile.production ui
+	docker build -t ghcr.io/alephdata/aleph-ui-production:$(ALEPH_TAG) -f ui/Dockerfile.production ui
 
-build-full: build build-ui
+build-e2e:
+	$(COMPOSE_E2E) build
+
+build-full: build build-ui build-e2e
 
 ingest-restart:
-	$(COMPOSE) up -d --no-deps --remove-orphans --force-recreate ingest-file convert-document
+	$(COMPOSE) up -d --no-deps --remove-orphans --force-recreate ingest-file
 
-dev: 
-	pip install -q bump2version babel jinja2
+dev:
+	python3 -m pip install --upgrade pip
+	python3 -m pip install -q -r requirements.txt
+	python3 -m pip install -q -r requirements-dev.txt
 
 fixtures:
 	aleph crawldir --wait -f fixtures aleph/tests/fixtures/samples
@@ -71,5 +100,24 @@ translate: dev
 	npm run --prefix ui translate
 	pybabel compile -d aleph/translations -D aleph -f
 
-.PHONY: build services
+e2e/test-results:
+	mkdir -p e2e/test-results
+
+services-e2e:
+	$(COMPOSE_E2E) up -d --remove-orphans \
+		postgres elasticsearch ingest-file \
+
+e2e: services-e2e e2e/test-results
+	$(COMPOSE_E2E) run --rm app aleph upgrade
+	$(COMPOSE_E2E) run --rm app aleph createuser --name="E2E Admin" --admin --password="admin" admin@admin.admin
+	$(COMPOSE_E2E) up -d api ui worker
+	BASE_URL=http://ui:8080 $(COMPOSE_E2E) run --rm e2e pytest -s -v --output=/e2e/test-results/ --screenshot=only-on-failure --video=retain-on-failure e2e/
+
+e2e-local-setup: dev
+	playwright install
+
+e2e-local:
+	pytest -s -v --screenshot only-on-failure e2e/
+
+.PHONY: build services e2e
 

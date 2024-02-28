@@ -3,7 +3,7 @@ from flask import Blueprint, request
 from followthemoney import model
 from followthemoney.compare import compare
 
-from aleph.settings import MAX_EXPAND_ENTITIES
+from aleph.settings import SETTINGS
 from aleph.model import Judgement
 from aleph.logic.profiles import get_profile, decide_pairwise
 from aleph.logic.expand import entity_tags, expand_proxies
@@ -132,7 +132,7 @@ def similar(profile_id):
     result.results = []
     for obj in entities:
         item = {
-            "score": compare(model, profile["merged"], obj),
+            "score": compare(model, profile["merged"], model.get_proxy(obj)),
             "judgement": Judgement.NO_JUDGEMENT,
             "collection_id": profile.get("collection_id"),
             "entity": obj,
@@ -186,7 +186,9 @@ def expand(profile_id):
     profile = obj_or_404(get_profile(profile_id, authz=request.authz))
     require(request.authz.can(profile.get("collection_id"), request.authz.READ))
     tag_request(collection_id=profile.get("collection_id"))
-    parser = QueryParser(request.args, request.authz, max_limit=MAX_EXPAND_ENTITIES)
+    parser = QueryParser(
+        request.args, request.authz, max_limit=SETTINGS.MAX_EXPAND_ENTITIES
+    )
     properties = parser.filters.get("property")
     results = expand_proxies(
         profile.get("proxies"),

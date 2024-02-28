@@ -1,5 +1,5 @@
-@import "app/variables.scss";
-@import "app/mixins.scss";
+@import 'app/variables.scss';
+@import 'app/mixins.scss';
 
 .EntityToolbar {
   font-weight: normal;
@@ -9,9 +9,14 @@
     @include rtl(float, right, left);
   }
 
-  .bp3-icon {
-    margin: 0!important;
-    @include rtlSupportInvertedProp(margin, right, $aleph-icon-padding!important, null);
+  .#{$bp-ns}-icon {
+    margin: 0 !important;
+    @include rtlSupportInvertedProp(
+      margin,
+      right,
+      $aleph-icon-padding!important,
+      null
+    );
     color: inherit !important;
   }
 }

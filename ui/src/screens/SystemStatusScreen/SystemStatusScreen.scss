@@ -1,14 +1,16 @@
-@import "~src/app/tables";
-@import "app/mixins.scss";
+@import 'app/tables.scss';
+@import 'app/mixins.scss';
+@import 'app/variables.scss';
 
 .StatusTable {
-  @extend .data-table;
+  @extend .#{$bp-ns}-html-table;
 
-  tr td, tr th {
+  tr td,
+  tr th {
     vertical-align: middle;
   }
 
   td.text {
-    @include rtlSupportInvertedProp(padding, left, 0, null)
+    @include rtlSupportInvertedProp(padding, left, 0, null);
   }
 }

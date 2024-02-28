@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { isLangRtl } from '@alephdata/react-ftm';
+import { isLangRtl } from 'react-ftm';
 import { Position } from '@blueprintjs/core';
 import { Select } from '@blueprintjs/select';
 import { selectLocale } from 'selectors';
@@ -10,12 +10,14 @@ const SelectWrapper = ({ locale, ...rest }) => (
     {...rest}
     popoverProps={{
       ...rest.popoverProps,
-      position: isLangRtl(locale) ? Position.BOTTOM_RIGHT : Position.BOTTOM_LEFT,
+      position: isLangRtl(locale)
+        ? Position.BOTTOM_RIGHT
+        : Position.BOTTOM_LEFT,
     }}
   />
 );
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   locale: selectLocale(state),
 });
 
